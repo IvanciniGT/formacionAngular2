@@ -168,15 +168,26 @@ App de gestión de expedientes de LO QUE SEA
             :) Lucas        [v] [BORRAR]                                         <usuario datosUsuario=" OBJETO1 ">
             :) Francisco    [v] [BORRAR]                                         <usuario datosUsuario=" OBJETO2 ">
             :) Menchu       [v] [BORRAR] -> [Cancelar] [Aceptar] -> REDUX        <usuario datosUsuario=" OBJETO3 ">
-        Revisores:
+                                            DELETE https://myempresa.com/api/v1/expediente/17/aprobadores/36
+        Revisores:      GET https://myempresa.com/api/v1/expediente/17/revisores
             :) Lucas        [v] [BORRAR]
-            :) Francisco    [v] [BORRAR]
+            :) Francisco    [v] [BORRAR]    DELETE https://myempresa.com/api/v1/expediente/17/revisores/36
             :) Menchu       [v] [BORRAR] -> [Cancelar] [Aceptar]
+
+        ServicioExpedientes: NO TENDRA LAS TIPICAS OPERACIONES CRUD ( o si, pero tendrá más)
+            recuperarExpediente 
+            nuevoRevisor
+            nuevoAprobador
+            eliminarRevisor
+            eliminarAprobador
+
+        Componente de la pantalla de revisores de un expediente
+
 ---
 App de gestión de usuarios:
     Listado de los usuarios: [Seleccionar Todos] [Deseleccionar todos] [Borrar todos]
             :) |Lucas   | |Ramirez    |     [v] [EDITAR] -> [Cancelar] [Aceptar]
-            :) Francisco    [v]                 [EDITAR] [BORRAR]
+            :) Francisco    [v]                 [EDITAR] [BORRAR] DELETE https://myempresa.com/api/v1/usuarios/17
             :) Menchu       [v]                 [EDITAR]
             :) Paquita      [v]                 [EDITAR]
             ** Al pinchar en editar en 1 de ellos:
@@ -266,6 +277,18 @@ deshabilitarBotonesBorrado
     CONDICION_PARA_SACAR_EL_BOTON_DE_EDITABLE?
         Si es Editable...Siempre? Seguro? No hay nada más dentro de mi componente que me indique si debo o no sacar el botón
             Siempre y cuando no haya pulsado ya en borrar
+
+## Lógica del componente (asociada a su ciclo de vida)
+
+Creación: 
+    usuario (id | datos)
+OnInit:
+    Si me han pasado un id, tengo que ir a buscar los datos del usuario al servicio
+    Eso va a ser asíncrono
+        Cuando me lleguen los datos del usuario, los pinto
+    Y mientras tanto? Mostrar algo por pantalla (Mensaje: cargando..., icono: spinner)
+
+    propiedad cargando....
 
 # Componente BotonConfirmable
 
