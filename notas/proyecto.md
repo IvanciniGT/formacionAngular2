@@ -157,6 +157,7 @@ App de gestión de vacaciones:
         Fecha de solicitud
         Motivos...
         Solicitante: :) Nombre Apellidos [v]                Aprobador: :) Nombre Apellidos [v]   [EDITAR]
+                    <usuario id="27">           -> Servicio <<< DatosUsuario
 ---
 App de gestión de expedientes de LO QUE SEA
     Por ejemplo, para sacar mis datos (yo, el hacedor del login)
@@ -164,16 +165,16 @@ App de gestión de expedientes de LO QUE SEA
     Tengo la pantalla con de el detalle de un EXPEDIENTE:
         Iniciador: :) Federico [v]
         Aprobadores:
-            :) Lucas        [v] [BORRAR]
-            :) Francisco    [v] [BORRAR]
-            :) Menchu       [v] [BORRAR] -> [Cancelar] [Aceptar] -> REDUX
+            :) Lucas        [v] [BORRAR]                                         <usuario datosUsuario=" OBJETO1 ">
+            :) Francisco    [v] [BORRAR]                                         <usuario datosUsuario=" OBJETO2 ">
+            :) Menchu       [v] [BORRAR] -> [Cancelar] [Aceptar] -> REDUX        <usuario datosUsuario=" OBJETO3 ">
         Revisores:
             :) Lucas        [v] [BORRAR]
             :) Francisco    [v] [BORRAR]
             :) Menchu       [v] [BORRAR] -> [Cancelar] [Aceptar]
 ---
 App de gestión de usuarios:
-    Listado de los usuarios:
+    Listado de los usuarios: [Seleccionar Todos] [Deseleccionar todos] [Borrar todos]
             :) |Lucas   | |Ramirez    |     [v] [EDITAR] -> [Cancelar] [Aceptar]
             :) Francisco    [v]                 [EDITAR] [BORRAR]
             :) Menchu       [v]                 [EDITAR]
@@ -182,3 +183,97 @@ App de gestión de usuarios:
                 - Se cambian sus datos por un formulario
                 - Se cambia el botón de EDITAR por ACEPTAR y cANCELAR
                 - El resto de botones EDITAR deben desaparecer (o desactivarse)
+<listado-usuario>
+    <usuario datosUsuario=" OBJETO1 " borrable={true} (onBorradoIniciado)={ marcará que hay un usuario borrandose }>
+    <usuario datosUsuario=" OBJETO2 " borrable={false}>
+    <usuario datosUsuario=" OBJETO3 " borrable={false}>
+</listado-usuario>
+
+
+----
+
+Modelo Usuario:
+nombre
+apellidos
+id
+foto
+edad
+email *
+telefono *
+
+Cuando llame al Backend: GET https://myempresa.com/api/v1/usuarios/{id}
+    Qué recibo? Todos los datos: DatosDeUsuario {nombre, apellidos, id, foto, edad, email, telefono}
+Cuando llame al Backend: PUT https://myempresa.com/api/v1/usuarios/{id}
+    Qué mando? DatosModificablesDeUsuario {email, telefono}
+
+// Principios SOLID
+
+Facilmente mantenibles => Si el día de mañana viene un compalñero nuevo al proyecto..
+Y tiene que montar algo (un cambio, nueva funcionalidad) en la modificación del envío de los datos modificables de un usuario.
+---
+
+# Componente usuario (altamente reutilizable) / Lógica del componente asociada a su ciclo de vida componente.clase.ts
+                                              / Lógica de representación gráfica                  componente.render.html
+## Props
+
+usuario: DatosDeUsuario | number                                        @Input
+ModoExtendido (boolean)                                                 @Input
+Borrable (boolean) \                                                    @Input
+Editable (boolean) / Características de mi componente                   @Input
+
+EnBorrado (boolean)                     \
+EnEdicion (boolean)                     / Estado del componente / Tiene su lógica
+Estado: EnBorrado, EnEdicion, Normal   /
+
+      +-Cancelar------------+
+      |                     |
+      +--Aceptar------------+
+      v                     |
+    Normal -?borrable-> EnBorrado
+      ^    -?editable-> EnEdicion
+      |                     |
+      +-Cancelar------------+
+      |                     |
+      +--Aceptar-?dirty-----+ (Si ha habido cambio en los datos)
+
+Cada camino (cambio de estado) es un evento que puedo soltar (OUTPUT)
+
+Servicio (que hay que inyectarlo)
+
+## Outputs (Eventos) / Con las acciones que se puedan realizar sobre mi componente... y que a otros le puedan interesar
+
+(Una forma sencilla de empezar a identificar acciones es mirar los botones o enlaces de acción que tiene el componente) - Cambios en mi estado
+onEdicionIniciada
+onEdicionCancelada
+onEdicionConfirmada *
+onBorradoIniciado
+onBorradoCancelado
+onBorradoConfirmado *
+
+deshabilitarBotonesEdicion
+deshabilitarBotonesBorrado
+
+## Renderización
+
+    <div>
+        <h3> Datos del polluelo</h3>
+        <div id ="botonera">
+            <boton-confirmable *ngIf="CONDICION_PARA_SACAR_EL_BOTON_DE_EDITABLE" >Editar</boton-confirmable>
+            <boton-confirmable *ngIf="CONDICION_PARA_SACAR_EL_BOTON_DE_BORRABLE" >Borrar</boton-confirmable>
+        </div>
+    </div>
+
+    CONDICION_PARA_SACAR_EL_BOTON_DE_EDITABLE?
+        Si es Editable...Siempre? Seguro? No hay nada más dentro de mi componente que me indique si debo o no sacar el botón
+            Siempre y cuando no haya pulsado ya en borrar
+
+# Componente BotonConfirmable
+
+---
+
+# Microfrontales?
+
+Dividir la app en partes más pequeñas... de forma que incluso esas partes se puedan desarrollar con tecnologías diferentes
+(parte1 -> Angular, parte2 -> React)
+
+WebComponent -> W3C
