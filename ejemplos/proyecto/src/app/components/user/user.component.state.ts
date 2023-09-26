@@ -53,7 +53,7 @@ export class UsuarioComponentState {
     aceptarEdicion =    (): void => this.cambiarEstado(EstadosComponenteUsuario.NORMAL,     this.puedeAceptarEdicion);
     cancelarEdicion =   (): void => this.cambiarEstado(EstadosComponenteUsuario.NORMAL,     this.puedeCancelarseEdicion);
 
-    finalizarCarga =    (): void => this.cambiarEstado(EstadosComponenteUsuario.NORMAL,     this.puedeCargase);
+    cargaFinalizada =    (): void => this.cambiarEstado(EstadosComponenteUsuario.NORMAL,     this.puedeCargase);
     irAError =          (): void => this.cambiarEstado(EstadosComponenteUsuario.ERROR,      this.puedeIrAError);
 
     private cambiarEstado(nuevoEstado: EstadosComponenteUsuario, validacion:()=>boolean){

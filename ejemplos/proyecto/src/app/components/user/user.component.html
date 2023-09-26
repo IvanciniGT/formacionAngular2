@@ -1,1 +1,25 @@
-<p>user works!</p>
+
+<div>
+    <div id="botonera">
+        <accion-confirmable caption="Editar"
+            *ngIf               = "this.estado.puedeSolicitarseEdicion()"
+            (onSolicitado)      = "this.procesarCambioEstado(this.estado.iniciarEdicion)"
+            (onConfirmacion)    = "this.procesarCambioEstado(this.estado.edicionConfirmada)"
+            (onCancelado)       = "this.procesarCambioEstado(this.estado.edicionCancelada)"
+        ></accion-confirmable>
+        <accion-confirmable caption="Borrar"
+            *ngIf               = "this.estado.puedeSolicitarseBorrado()"
+            (onSolicitado)      = "this.procesarCambioEstado(this.estado.iniciarBorrado)"
+            (onConfirmacion)    = "this.procesarCambioEstado(this.estado.borradoConfirmado)"
+            (onCancelado)       = "this.procesarCambioEstado(this.estado.borradoCancelado)"
+        ></accion-confirmable>
+    </div>
+</div>
+
+
+<!--
+    this.procesarCambioEstado(cambioDeEstado){
+        cambioDeEstado();
+        // En funcion del tipo de cambio de estado, lanzar un evento u otro
+    }
+-->
