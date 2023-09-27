@@ -3,10 +3,10 @@ import { DatosDeUsuario } from "src/app/models/usuario.model";
 export class UsuarioComponentEvent {
     readonly usuario?: DatosDeUsuario;
     readonly id: number;
-    constructor(usuario?: DatosDeUsuario=undefined){
+    constructor(usuario: DatosDeUsuario | number){
         if(typeof usuario === 'number'){
             this.id = usuario;
-        else{
+        }else{
             this.id = usuario.id;
             this.usuario = usuario;
         }
@@ -21,6 +21,6 @@ export class EdicionSolicitada extends UsuarioComponentEvent {}
 export class EdicionConfirmada extends UsuarioComponentEvent {}
 export class EdicionCancelada extends UsuarioComponentEvent {}
 
-export class cargaFinalizada extends UsuarioComponentEvent {}
-export class cargaFallida extends UsuarioComponentEvent {}
-export class cargaIniciada extends UsuarioComponentEvent {}
+export class CargaFinalizada extends UsuarioComponentEvent {}
+export class CargaFallida extends UsuarioComponentEvent {}
+export class CargaIniciada extends UsuarioComponentEvent {}

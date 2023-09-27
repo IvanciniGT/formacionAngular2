@@ -300,3 +300,20 @@ Dividir la app en partes más pequeñas... de forma que incluso esas partes se p
 (parte1 -> Angular, parte2 -> React)
 
 WebComponent -> W3C
+
+```mermaid
+stateDiagram-v2
+        [*] --> Cargando: Si se pasa id.
+        [*] --> Normal: Si se pasan los\ndatos del usuario.
+        Cargando
+        Cargando --> Error: Problema con backend.
+        Cargando --> Normal: Al recibir datos\ndel usuario.
+        Normal --> enEdicion: Click en Editar.
+        note right of enEdicion: Solo si es editable.
+        enEdicion --> Normal: Click en Cancelar.
+        enEdicion --> Normal: Click en Aceptar.
+        Normal --> enBorrado: Click en Borrar.
+        note right of enBorrado: Solo si es borrable.
+        enBorrado --> Normal: Click en Cancelar.
+        enBorrado --> Normal: Click en Aceptar.
+```
