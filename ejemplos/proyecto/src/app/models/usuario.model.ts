@@ -1,9 +1,5 @@
-import { DatosModificablesDeUsuario } from './usuario.update.model';
+import { DatosDeNuevoUsuario } from './usuario.nuevo.model';
 
-export interface DatosDeUsuario extends DatosModificablesDeUsuario {
-    nombre: string;
-    apellido: string;
-    edad: number;
-    foto: string;
+export interface DatosDeUsuario extends DatosDeNuevoUsuario {
     id: number;
 }

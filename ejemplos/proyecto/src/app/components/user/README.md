@@ -68,7 +68,12 @@ stateDiagram-v2
         Normal --> enEdicion: Click en Editar.
         note right of enEdicion: Solo si es editable.
         enEdicion --> Normal: Click en Cancelar.
-        enEdicion --> Normal: Click en Aceptar.
+        enEdicion --> EnEsperaDeBackEnd: Click en Aceptar.
+        EnEsperaDeBackEnd
+        EnEsperaDeBackEnd --> Normal: Si la actualización\nse realiza correctamente.
+        EnEsperaDeBackEnd --> EnEsperaDeConfirmacionTrasError: Si la actualización falla.
+        EnEsperaDeConfirmacionTrasError --> EnEsperaDeBackEnd: Si el usuario pide reintentar (o yo).
+        EnEsperaDeConfirmacionTrasError --> Normal: Si el usuario pide cancelar la edición (o yo).
         Normal --> enBorrado: Click en Borrar.
         note right of enBorrado: Solo si es borrable.
         enBorrado --> Normal: Click en Cancelar.

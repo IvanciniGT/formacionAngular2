@@ -62,6 +62,7 @@ export class UsuarioComponentState {
 
     iniciarEdicion =    (): UsuarioComponentModel => this.#cambiarEstado(EstadosComponenteUsuario.EN_EDICION, this.puedeSolicitarseEdicion);
     aceptarEdicion =    (): UsuarioComponentModel => this.#cambiarEstado(EstadosComponenteUsuario.NORMAL,     this.puedeAceptarEdicion);
+        // TODO: Esto debería llevarnos a estado EnEsperaDeBackEnd                                ^^^^^
     cancelarEdicion =   (): UsuarioComponentModel => this.#cambiarEstado(EstadosComponenteUsuario.NORMAL,     this.puedeCancelarseEdicion);
 
     cargaFinalizada =   (datosUsuario: DatosDeUsuario): UsuarioComponentModel =>{

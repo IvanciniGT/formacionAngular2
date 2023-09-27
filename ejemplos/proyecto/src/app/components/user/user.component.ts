@@ -5,7 +5,8 @@ import { UsuarioComponentState } from './user.component.state';
 import { UsuarioService } from 'src/app/services/user/user.service';
 import { BorradoConfirmado, EdicionConfirmada, EdicionSolicitada, BorradoSolicitado, BorradoCancelado, EdicionCancelada, CargaFallida, CargaFinalizada, CargaIniciada } from './user.component.events';
 import { UsuarioComponentModel } from './user.component.model';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { DatosModificablesDeUsuario } from 'src/app/models/usuario.update.model';
 
 @Component({
   selector: 'app-user',
@@ -63,7 +64,48 @@ export class UserComponent implements OnInit, OnChanges {
       telefono: [ this.datos.datosDeUsuario!.telefono, [Validators.pattern('^(([+][0-9]{0,4}[-])?([0-9]{2,3}[-]?){2,3}[0-9]{2,3})$') ] ]
           //[Validators.minLength(9), Validators.maxLength(12)] ],
     })
+    /*
+    this.formulario = new FormGroup({
+        email: new FormControl<string>(this.datos.datosDeUsuario!.email, [Validators.required, Validators.email]),
+        telefono: new FormControl<string|undefined>(this.datos.datosDeUsuario!.telefono, [Validators.pattern('^(([+][0-9]{0,4}[-])?([0-9]{2,3}[-]?){2,3}[0-9]{2,3})$') ])
+    });
+    */
   }
+
+  private telefonoControl?: FormControl<string>;
+
+  procesarFormularioEdicion(){ // Cuando se haga un submit en el formulario
+    //this.formulario!.dirty // Si ha habido cambios
+    //this.formulario!.valid // Si es valido
+    if(this.formulario!.valid && this.formulario!.dirty){
+      console.log(this.formulario!.get('email')!.value)
+      console.log(this.formulario!.get('telefono')!.value)
+      this.usuarioService.editarUsuario(this.datos.datosDeUsuario!.id,
+        //this.mapeadorDatosModificados(this.formulario!)
+                    {
+                      email: this.formulario!.get('email')!.value, 
+                      telefono: this.formulario!.get('telefono')!.value
+                    }
+        ).subscribe({
+                        next: (datosDeUsuario: DatosDeUsuario) => {
+                                  //  TODO: Esto debería llevarnos a estado Normal... y me vendrían nuevos "datos" que actualizo
+                              },
+                        error: (error: any) => { 
+                                  // Función si va mal
+                                  // TODO: Esto llevaría el componente a estado: EnEsperaDeConfirmacionTrasError
+                              console.log(error)
+                            }    
+                     });
+    }
+  }
+/*
+  mapeadorDatosModificados(formulario: FormGroup): DatosModificablesDeUsuario {
+    return {
+      email: formulario!.get('email')!.value, 
+      telefono: formulario!.get('telefono')!.value
+    }
+  }
+*/
   ngOnInit(): void {
     // Si me pasan como usuario un  ID numerico, solicitamos los DatosDeUsuario al servicio
     if (this.maquinaEstados.isInState(EstadosComponenteUsuario.CARGANDO)) {
@@ -106,6 +148,7 @@ export class UserComponent implements OnInit, OnChanges {
         this.usuarioBorrado.emit(new EdicionCancelada(this.usuario));
         break;
       case this.maquinaEstados.aceptarEdicion:
+        this.procesarFormularioEdicion();
         this.usuarioBorrado.emit(new EdicionConfirmada(this.usuario));
         break;
       case this.maquinaEstados.iniciarEdicion:
@@ -115,3 +158,5 @@ export class UserComponent implements OnInit, OnChanges {
     }
   }
 }
+
+

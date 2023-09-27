@@ -6,16 +6,16 @@
             captionCancelacion  = "Cancelar"
             *ngIf               = "this.estado.puedeSolicitarseEdicion()"
             (onSolicitado)      = "this.procesarCambioEstado(this.estado.iniciarEdicion)"
-            (onConfirmacion)    = "this.procesarCambioEstado(this.estado.edicionConfirmada)"
-            (onCancelado)       = "this.procesarCambioEstado(this.estado.edicionCancelada)"
+            (onConfirmacion)    = "this.procesarCambioEstado(this.estado.aceptarEdicion)"
+            (onCancelado)       = "this.procesarCambioEstado(this.estado.cancelarEdicion)"
         ></accion-confirmable>
         <accion-confirmable caption="Borrar"
             captionConfirmacion = "Confirmar"
             captionCancelacion  = "Cancelar"
             *ngIf               = "this.estado.puedeSolicitarseBorrado()"
             (onSolicitado)      = "this.procesarCambioEstado(this.estado.iniciarBorrado)"
-            (onConfirmacion)    = "this.procesarCambioEstado(this.estado.borradoConfirmado)"
-            (onCancelado)       = "this.procesarCambioEstado(this.estado.borradoCancelado)"
+            (onConfirmacion)    = "this.procesarCambioEstado(this.estado.aceptarBorrado)"
+            (onCancelado)       = "this.procesarCambioEstado(this.estado.cancelarBorrado)"
         ></accion-confirmable>
     </div>
     <!--Datos del usuario-->
@@ -52,8 +52,24 @@
 
         Formulario de nuestra lista de usuarios: |         | BUSCAR NO TIENE SENTIDO HACERLO CON REACTIVOS
 
-    
     -->
-
+    <!-- Formulario reactivo basado en this.formulario-->
+    <!--Además debería sacar el resto de campos-->
+    <form [formGroup]="this.formulario" *ngIf="this.estado.yaTengoLosDatosDelUsuario()">
+        <div id="email">
+            <label [ngClass]="[ this.formulario.get('email').errors ? 'error' : 'valid' ]">Email</label>
+            <input type="email" formControlName="email" [disabled]="!this.estado.puedeEditarse()">
+            <div class"mensaje-error" *ngIf="this.formulario.get('email').errors">
+                <div *ngIf="this.formulario.get('email').errors.required">El email es obligatorio</div>
+                <div *ngIf="this.formulario.get('email').errors.email">El email no es correcto</div>
+            </div>
+        </div>
+        <div id="telefono">
+            <label [ngClass]="[ this.formulario.get('telefono').errors ? 'error' : 'valid' ]">Teléfono</label>
+            <input type="text" formControlName="telefono" [disabled]="!this.estado.puedeEditarse()">
+            <div class"mensaje-error" *ngIf="this.formulario.get('telefono').errors">
+                <div *ngIf="this.formulario.get('telefono').errors.required">El teléfono es obligatorio</div>
+                <div *ngIf="this.formulario.get('telefono').errors.pattern">El teléfono debe tener un formato correcto</div>
+            </div>
+        </div>
 </div>
-
