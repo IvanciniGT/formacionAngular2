@@ -1,18 +1,6 @@
 import { DatosDeUsuario } from 'src/app/models/usuario.model';
 import { EstadosComponenteUsuario } from './user.component.states';
 import { UsuarioComponentModel } from './user.component.model';
-/*
-                                            +-Cancelar------------+
-                                            |                     |
-                                            +--Aceptar------------+
-                                            v                     |
-    Cargando   ----------------------->     Normal -?borrable-> EnBorrado
-       |                                     ^    -?editable-> EnEdicion
-       v                                    |                     |
-     Error                                  +-Cancelar------------+
-                                            |                     |
-                                            +--Aceptar-?dirty-----+ (Si ha habido cambio en los datos)
-*/
 
 // Posibles #estados (ACCESIBLES DESDE FUERA)
 export class UsuarioComponentState {
@@ -56,6 +44,7 @@ export class UsuarioComponentState {
         editable: editable
     })
 
+    yaTengoLosDatosDelUsuario = (): boolean => this.#modelo.datosDeUsuario !== undefined;
     puedeSolicitarseBorrado =   (): boolean => this.#modelo.estado === EstadosComponenteUsuario.NORMAL && this.#modelo.borrable;
     puedeAceptarBorrado =       (): boolean => this.#modelo.estado === EstadosComponenteUsuario.EN_BORRADO;
     puedeCancelarseBorrado =    (): boolean => this.#modelo.estado === EstadosComponenteUsuario.EN_BORRADO;

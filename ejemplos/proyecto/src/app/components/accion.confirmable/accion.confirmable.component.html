@@ -1,0 +1,15 @@
+<div class="botones">
+    <button *ngIf="! this.solicitado"     class="btn btn-primary" (click)="this.clickEnAccion()" >{{this.caption}}</button>
+    <button *ngIf="this.solicitado"       class="btn btn-primary" (click)="this.clickEnCancelacion()" >{{this.captionCancelacion}}</button>
+    <button *ngIf="this.solicitado"       class="btn btn-primary" (click)="this.clickEnConfirmacion()" >{{this.captionConfirmacion}}</button>
+</div>
+
+<!--
+<div class="botones">
+    <button *ngIf="! this.solicitado; else confirmacion"  class="btn btn-primary" (click)="this.clickEnAccion()" >{{this.caption}}</button>
+</div>
+<ng-template #confirmacion>
+    <button class="btn btn-primary" (click)="this.clickEnCancelacion()" >{{this.captionCancelacion}}</button>
+    <button class="btn btn-primary" (click)="this.clickEnConfirmacion()" >{{this.captionConfirmacion}}</button>
+</ng-template>  
+-->

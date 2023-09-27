@@ -5,6 +5,7 @@ import { UsuarioComponentState } from './user.component.state';
 import { UsuarioService } from 'src/app/services/user/user.service';
 import { BorradoConfirmado, EdicionConfirmada, EdicionSolicitada, BorradoSolicitado, BorradoCancelado, EdicionCancelada, CargaFallida, CargaFinalizada, CargaIniciada } from './user.component.events';
 import { UsuarioComponentModel } from './user.component.model';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-user',
@@ -47,12 +48,22 @@ export class UserComponent implements OnInit, OnChanges {
 
   private maquinaEstados: UsuarioComponentState;
   datos:UsuarioComponentModel;
+  //datosUsuarioFormulario?: DatosDeUsuario;
+  formulario?: FormGroup
 
-  constructor(private usuarioService: UsuarioService) {
+  constructor(private usuarioService: UsuarioService, private formBuilder: FormBuilder) {
     this.maquinaEstados = new UsuarioComponentState(this.usuario, this.borrable, this.editable);
     this.datos = this.maquinaEstados.modelo;
   }
 
+  crearFormularioEdicion(){
+    //his.formulario = new FormGroup({}); // TODO: Crear el formulario
+    this.formulario = this.formBuilder.group({
+      email: [ this.datos.datosDeUsuario!.email, [Validators.required, Validators.email] ],
+      telefono: [ this.datos.datosDeUsuario!.telefono, [Validators.pattern('^(([+][0-9]{0,4}[-])?([0-9]{2,3}[-]?){2,3}[0-9]{2,3})$') ] ]
+          //[Validators.minLength(9), Validators.maxLength(12)] ],
+    })
+  }
   ngOnInit(): void {
     // Si me pasan como usuario un  ID numerico, solicitamos los DatosDeUsuario al servicio
     if (this.maquinaEstados.isInState(EstadosComponenteUsuario.CARGANDO)) {
@@ -60,6 +71,7 @@ export class UserComponent implements OnInit, OnChanges {
       this.usuarioService.getUsuario(this.usuario as number).subscribe({
         next: (datosDeUsuario: DatosDeUsuario) => { // Función si va bien
           this.datos = this.maquinaEstados.cargaFinalizada(datosDeUsuario);
+          //this.datosUsuarioFormulario = {...this.datos.datosDeUsuario!} // Copia de los datos del usuario. Oportunidad de hacer un CANCELAR
           this.usuarioCargado.emit(new CargaFinalizada(this.usuario));
         },
         error: (error: any) => {
@@ -97,6 +109,7 @@ export class UserComponent implements OnInit, OnChanges {
         this.usuarioBorrado.emit(new EdicionConfirmada(this.usuario));
         break;
       case this.maquinaEstados.iniciarEdicion:
+        this.crearFormularioEdicion();
         this.edicionIniciada.emit(new EdicionSolicitada(this.usuario));
         break;
     }

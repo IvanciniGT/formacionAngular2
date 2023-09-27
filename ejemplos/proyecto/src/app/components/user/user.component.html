@@ -1,25 +1,59 @@
 
 <div>
-    <div id="botonera">
+    <div id="botonera" *ngIf= "this.estado.puedeSolicitarseEdicion() || this.estado.puedeSolicitarseBorrado()">
         <accion-confirmable caption="Editar"
+            captionConfirmacion = "Guardar"
+            captionCancelacion  = "Cancelar"
             *ngIf               = "this.estado.puedeSolicitarseEdicion()"
             (onSolicitado)      = "this.procesarCambioEstado(this.estado.iniciarEdicion)"
             (onConfirmacion)    = "this.procesarCambioEstado(this.estado.edicionConfirmada)"
             (onCancelado)       = "this.procesarCambioEstado(this.estado.edicionCancelada)"
         ></accion-confirmable>
         <accion-confirmable caption="Borrar"
+            captionConfirmacion = "Confirmar"
+            captionCancelacion  = "Cancelar"
             *ngIf               = "this.estado.puedeSolicitarseBorrado()"
             (onSolicitado)      = "this.procesarCambioEstado(this.estado.iniciarBorrado)"
             (onConfirmacion)    = "this.procesarCambioEstado(this.estado.borradoConfirmado)"
             (onCancelado)       = "this.procesarCambioEstado(this.estado.borradoCancelado)"
         ></accion-confirmable>
     </div>
+    <!--Datos del usuario-->
+    <!--Depende de si estoy en estado EDICION o NO, tendré que sacarlos en un formulario o NO lo sacaré como un formulario-->
+    <!--Esto lo haré aquí o me creo un par de componentes que lo hagan.. componentes de PURA renderización-->
+    <!-- Si creo estos componentes es solo por legibilidad del código -> Mantenimiento 
+    <div id="datos" *ngIf="this.estado.yaTengoLosDatosDelUsuario()">
+        <div id="nombre">
+            <label>Nombre</label>
+            <input type="text" [ngModel]="this.usuario.nombre" disabled="false">
+        </div>
+        <div id="apellidos">
+            <label>Apellidos</label>
+            <input type="text" [ngModel]="this.usuario.apellido" disabled="false">
+        </div>
+        <div id="edad">
+            <label>Edad</label>
+            <input type="number" [ngModel]="this.usuario.edad" disabled="false">
+        </div>
+        <div id="email">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="this.usuario.email" [disabled]="!this.estado.puedeEditarse()">
+        </div>
+        <div id="telefono">
+            <label>Teléfono</label>
+            <input type="text" [(ngModel)]="this.usuario.telefono" [disabled]="!this.estado.puedeEditarse()">
+        </div>
+    </div>-->
+    <!--Desventajas de esta forma de trabajar:
+        - Validaciones
+        - Complejo para pruebas
+        - Me gustaría poder definir el formulario en el component .ts
+        Esto nos lo resuelven los formularios reactivos... e intentaremos usarlos tanto como podamos y tengan sentido!
+
+        Formulario de nuestra lista de usuarios: |         | BUSCAR NO TIENE SENTIDO HACERLO CON REACTIVOS
+
+    
+    -->
+
 </div>
 
-
-<!--
-    this.procesarCambioEstado(cambioDeEstado){
-        cambioDeEstado();
-        // En funcion del tipo de cambio de estado, lanzar un evento u otro
-    }
--->

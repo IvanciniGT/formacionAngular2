@@ -74,3 +74,5 @@ stateDiagram-v2
         enBorrado --> Normal: Click en Cancelar.
         enBorrado --> Normal: Click en Aceptar.
 ```
+
+
