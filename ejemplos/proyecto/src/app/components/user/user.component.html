@@ -1,6 +1,10 @@
 <div id="usuario" *ngIf="!this.maquinaEstados.isInState(this.estados.INICIO) && 
             !this.maquinaEstados.isInState(this.estados.REALIZANDO_CARGA_INICIAL) &&
-            !this.maquinaEstados.isInState(this.estados.ERROR_EN_CARGA_INICIAL)">
+            !this.maquinaEstados.isInState(this.estados.ERROR_EN_CARGA_INICIAL)"
+    (click)="this.seleccionadoCambiado()"
+    [ngClass]="[ this.datos.seleccionado ? 'seleccionado' : '' ]">
+    
+
     <div id="botonera" >
         <accion-confirmable caption="Editar" captionConfirmacion="Guardar" captionCancelacion="Cancelar"
             *ngIf="this.maquinaEstados.canChangeState(this.acciones.INICIAR_EDICION) || 

@@ -27,3 +27,6 @@ export class EdicionCancelada extends UsuarioComponentEvent {}
 export class CargaFinalizada extends UsuarioComponentEvent {}
 export class CargaFallida extends UsuarioComponentEvent {}
 export class CargaIniciada extends UsuarioComponentEvent {}
+
+export class Seleccionado extends UsuarioComponentEvent {}
+export class Deseleccionado extends UsuarioComponentEvent {}

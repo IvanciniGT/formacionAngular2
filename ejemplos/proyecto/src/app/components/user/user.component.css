@@ -3,6 +3,9 @@
     border: solid 1px black;
     background-color: #f0f0f0;
 }
+#usuario.seleccionado {
+    background-color: #eebbbb;
+}
 
 #botonera {
     float: right;

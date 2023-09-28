@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { DatosDeUsuario } from 'src/app/models/usuario.model';
 import { AccionesComponenteUsuario, EstadosComponenteUsuario } from './user.component.states';
 import { UsuarioService } from 'src/app/services/user/user.service';
-import { BorradoConfirmado, EdicionConfirmada, EdicionSolicitada, BorradoSolicitado, BorradoCancelado, EdicionCancelada, CargaFallida, CargaFinalizada, CargaIniciada } from './user.component.events';
+import { BorradoConfirmado, EdicionConfirmada, EdicionSolicitada, BorradoSolicitado, BorradoCancelado, EdicionCancelada, CargaFallida, CargaFinalizada, CargaIniciada, Seleccionado, Deseleccionado } from './user.component.events';
 import { UsuarioComponentModel, UsuarioComponentProperties } from './user.component.model';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ComponentStateMachine } from 'src/app/lib/component.state.machine/component.state.machine';
@@ -24,7 +24,11 @@ export class UsuarioComponent implements OnInit, OnChanges {
   @Input()
   borrable: boolean = false;
   @Input()
-  editable: boolean = false;
+  editable: boolean = false;  
+  @Input()
+  seleccionable: boolean = false;
+  @Input()
+  seleccionado: boolean = false;
 
   @Output()
   usuarioBorrado = new EventEmitter<BorradoConfirmado>();
@@ -45,6 +49,11 @@ export class UsuarioComponent implements OnInit, OnChanges {
   @Output()
   edicionCancelada = new EventEmitter<EdicionCancelada>();
 
+  @Output()
+  onSeleccionado = new EventEmitter<Seleccionado>();
+  @Output()
+  onDeseleccionado = new EventEmitter<Deseleccionado>();
+
   // Fin del API del componente
 
   readonly acciones = AccionesComponenteUsuario;
@@ -59,7 +68,15 @@ export class UsuarioComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    this.datos = this.maquinaEstados.updateProperties({ userData: typeof this.data === 'number' ? undefined : this.data, userId: typeof this.data === 'number' ? this.data : this.data?.id, deletable: this.borrable, updatable: this.editable });
+    this.datos = this.maquinaEstados.updateProperties({ 
+      userData: typeof this.data === 'number' ? undefined : this.data, 
+      userId: typeof this.data === 'number' ? this.data : this.data?.id, 
+      deletable: this.borrable, 
+      updatable: this.editable,
+      seleccionable: this.seleccionable,
+      seleccionado: this.seleccionado
+  
+    });
     // Si me pasan como usuario un  ID numerico, solicitamos los DatosDeUsuario al servicio
     if (this.maquinaEstados.canChangeState(AccionesComponenteUsuario.INICIAR_CARGA_INICIAL)) {
       this.procesarCambioEstado(AccionesComponenteUsuario.INICIAR_CARGA_INICIAL, { userId: this.datos.userId });
@@ -79,6 +96,17 @@ export class UsuarioComponent implements OnInit, OnChanges {
       });
     } else {
       this.procesarCambioEstado(AccionesComponenteUsuario.DATOS_RECIBIDOS_INICIALMENTE, { userId: this.datos.userId, userData: this.datos.userData });
+    }
+  }
+  seleccionadoCambiado(){
+    console.log("seleccionadoCambiado", this.datos.seleccionado, this.datos.seleccionable)
+    if(!this.datos.seleccionable) return
+    // TODO: Solo si está en estado normal
+    this.datos = this.maquinaEstados.updateProperties({ seleccionado: !this.datos.seleccionado });
+    if(this.datos.seleccionado){
+      this.onSeleccionado.emit(new Seleccionado(this.datos.userData!))
+    }else{
+      this.onDeseleccionado.emit(new Deseleccionado(this.datos.userData!))
     }
   }
 

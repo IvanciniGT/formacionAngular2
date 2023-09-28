@@ -8,6 +8,8 @@ export interface UsuarioComponentProperties extends ComponentProperties{
     userId?: number;
     updatable: boolean;
     deletable: boolean;
+    seleccionable: boolean;
+    seleccionado: boolean;
 }
 
 export class UsuarioComponentModel implements ComponentModel, UsuarioComponentProperties{
@@ -15,6 +17,8 @@ export class UsuarioComponentModel implements ComponentModel, UsuarioComponentPr
     userId?: number
     updatable: boolean = false
     deletable: boolean = false
+    seleccionable: boolean =false;
+    seleccionado: boolean = false;
     // Van asociadas a cambios de estado
     state: ComponentState  = EstadosComponenteUsuario.INICIO;
     userData?: DatosDeUsuario;
