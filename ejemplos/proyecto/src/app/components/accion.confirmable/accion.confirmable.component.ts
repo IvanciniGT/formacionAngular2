@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-accion.confirmable',
+  selector: 'accion-confirmable',
   templateUrl: './accion.confirmable.component.html',
   styleUrls: ['./accion.confirmable.component.css']
 })
@@ -13,6 +13,10 @@ export class AccionConfirmableComponent {
   captionConfirmacion: string = "Aceptar";
   @Input()
   captionCancelacion: string = "Cancelar";
+  @Input()
+  cancelacionActivada: boolean = true;
+  @Input()
+  confirmacionActivada: boolean = true;
 
   @Output()
   onSolicitado = new EventEmitter<void>();

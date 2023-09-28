@@ -1,24 +1,24 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { DatosDeUsuario } from 'src/app/models/usuario.model';
-import { EstadosComponenteUsuario } from './user.component.states';
-import { UsuarioComponentState } from './user.component.state';
+import { AccionesComponenteUsuario, EstadosComponenteUsuario } from './user.component.states';
 import { UsuarioService } from 'src/app/services/user/user.service';
 import { BorradoConfirmado, EdicionConfirmada, EdicionSolicitada, BorradoSolicitado, BorradoCancelado, EdicionCancelada, CargaFallida, CargaFinalizada, CargaIniciada } from './user.component.events';
-import { UsuarioComponentModel } from './user.component.model';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { DatosModificablesDeUsuario } from 'src/app/models/usuario.update.model';
+import { UsuarioComponentModel, UsuarioComponentProperties } from './user.component.model';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ComponentStateMachine } from 'src/app/lib/component.state.machine/component.state.machine';
+import { ComponentStateChange } from 'src/app/lib/component.state.machine/component.state.change';
 
 @Component({
-  selector: 'app-user',
+  selector: 'usuario',
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.css']
 })
-export class UserComponent implements OnInit, OnChanges {
+export class UsuarioComponent implements OnInit, OnChanges {
 
   // API del componente
 
   @Input()
-  usuario!: DatosDeUsuario | number;
+  data!: DatosDeUsuario | number;
   @Input()
   modoExtendido: boolean = false;
   @Input()
@@ -47,22 +47,106 @@ export class UserComponent implements OnInit, OnChanges {
 
   // Fin del API del componente
 
-  private maquinaEstados: UsuarioComponentState;
-  datos:UsuarioComponentModel;
-  //datosUsuarioFormulario?: DatosDeUsuario;
+  readonly acciones = AccionesComponenteUsuario;
+  readonly estados = EstadosComponenteUsuario;
+  maquinaEstados: ComponentStateMachine<UsuarioComponentProperties, UsuarioComponentModel>;
+  datos: UsuarioComponentModel;
   formulario?: FormGroup
 
   constructor(private usuarioService: UsuarioService, private formBuilder: FormBuilder) {
-    this.maquinaEstados = new UsuarioComponentState(this.usuario, this.borrable, this.editable);
-    this.datos = this.maquinaEstados.modelo;
+    this.maquinaEstados = new ComponentStateMachine<UsuarioComponentProperties, UsuarioComponentModel>(new UsuarioComponentModel());
+    this.datos = this.maquinaEstados.data;
   }
 
-  crearFormularioEdicion(){
+  ngOnInit(): void {
+    this.datos = this.maquinaEstados.updateProperties({ userId: typeof this.data === 'number' ? this.data : this.data?.id, deletable: this.borrable, updatable: this.editable });
+    // Si me pasan como usuario un  ID numerico, solicitamos los DatosDeUsuario al servicio
+    if (this.maquinaEstados.canChangeState(AccionesComponenteUsuario.INICIAR_CARGA_INICIAL)) {
+      this.procesarCambioEstado(AccionesComponenteUsuario.INICIAR_CARGA_INICIAL, { userId: this.datos.userId });
+      this.usuarioService.getUsuario(this.datos.userId as number).subscribe({
+        next: (datosDeUsuario: DatosDeUsuario | undefined) => { // Función si va bien
+          if (datosDeUsuario !== undefined) {
+            this.procesarCambioEstado(AccionesComponenteUsuario.CARGA_FINALIZADA, { userData: datosDeUsuario });
+          } else {
+            // TODO, implementar nuevo estado
+            console.log('Usuario no encontrado ' + this.datos.userId);
+          }
+        },
+        error: (error: any) => {
+          console.log(error)                              // Función si va mal
+          this.procesarCambioEstado(AccionesComponenteUsuario.CARGA_FALLIDA, { error: error });
+        }
+      });
+    } else {
+      this.procesarCambioEstado(AccionesComponenteUsuario.DATOS_RECIBIDOS_INICIALMENTE, { userId: this.datos.userId, userData: this.datos.userData });
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['borrable'] || changes['editable']) {
+      this.datos = this.maquinaEstados.updateProperties({ deletable: this.borrable, updatable: this.editable });
+    } // todo: userID
+  }
+
+  procesarCambioEstado(cambioDeEstado: ComponentStateChange<UsuarioComponentModel, Partial<UsuarioComponentModel>>, newData: Partial<UsuarioComponentModel> = {}) {
+    this.datos = this.maquinaEstados.changeState(cambioDeEstado, newData);
+    switch (cambioDeEstado) {
+      case AccionesComponenteUsuario.INICIAR_CARGA_INICIAL:
+        this.cargaIniciada.emit(new CargaIniciada(this.datos.userId as number));
+        break;
+      case AccionesComponenteUsuario.CARGA_FINALIZADA:
+        this.usuarioCargado.emit(new CargaFinalizada(this.datos.userData!));
+        break;
+      case AccionesComponenteUsuario.DATOS_RECIBIDOS_INICIALMENTE:
+        console.log("DATOS_RECIBIDOS_INICIALMENTE", newData)
+        break;
+      case AccionesComponenteUsuario.CARGA_FALLIDA:
+        this.usuarioError.emit(new CargaFallida(this.datos.userId as number)); // TODO Añadir error
+        console.log(newData.error)
+        break;
+      case AccionesComponenteUsuario.INICIAR_EDICION:
+        this.crearFormularioEdicion()
+        this.edicionIniciada.emit(new EdicionSolicitada(this.datos.userData!));
+        break;
+      case AccionesComponenteUsuario.INICIAR_BORRADO:
+        this.borradoIniciado.emit(new BorradoSolicitado(this.datos.userData!));
+        break;
+      case AccionesComponenteUsuario.BORRADO_CANCELADO:
+        this.borradoCancelado.emit(new BorradoCancelado(this.datos.userData!));
+        break;
+      case AccionesComponenteUsuario.EDICION_CANCELADA:
+      case AccionesComponenteUsuario.CANCELAR_ALMACENAMIENTO_DE_EDICION:
+        this.edicionCancelada.emit(new EdicionCancelada(this.datos.userData!));
+        break;
+      case AccionesComponenteUsuario.BORRADO_CONFIRMADO:
+        this.usuarioBorrado.emit(new BorradoConfirmado(this.datos.userData!));
+        break;
+      case AccionesComponenteUsuario.REINTENTAR_ALMACENAMIENTO:
+      case AccionesComponenteUsuario.EDICION_FINALIZADA:
+        break
+      case AccionesComponenteUsuario.EDICION_ALMACENADA:
+        this.usuarioEditado.emit(new EdicionConfirmada(this.datos.userData!));
+        break;
+      case AccionesComponenteUsuario.ALMACENAMIENTO_FALLIDO:
+        console.log(newData.error)
+        // Reintentar en 2 segundos
+        setTimeout(() => {
+          this.procesarCambioEstado(AccionesComponenteUsuario.REINTENTAR_ALMACENAMIENTO);
+        }, 2000);
+        break
+      default:
+        console.log("Cambio de estado no controlado", cambioDeEstado)
+    }
+  }
+
+
+
+  crearFormularioEdicion() {
     //his.formulario = new FormGroup({}); // TODO: Crear el formulario
     this.formulario = this.formBuilder.group({
-      email: [ this.datos.datosDeUsuario!.email, [Validators.required, Validators.email] ],
-      telefono: [ this.datos.datosDeUsuario!.telefono, [Validators.pattern('^(([+][0-9]{0,4}[-])?([0-9]{2,3}[-]?){2,3}[0-9]{2,3})$') ] ]
-          //[Validators.minLength(9), Validators.maxLength(12)] ],
+      email: [this.datos.userData?.email, [Validators.required, Validators.email]],
+      telefono: [this.datos.userData?.telefono, [Validators.pattern('^(([+][0-9]{0,4}[-])?([0-9]{2,3}[-]?){2,3}[0-9]{2,3})$')]]
+      //[Validators.minLength(9), Validators.maxLength(12)] ],
     })
     /*
     this.formulario = new FormGroup({
@@ -71,92 +155,39 @@ export class UserComponent implements OnInit, OnChanges {
     });
     */
   }
-
-  private telefonoControl?: FormControl<string>;
-
-  procesarFormularioEdicion(){ // Cuando se haga un submit en el formulario
+  cancelarEdicion(){
+    if(this.formulario!.dirty){
+      const confirmacion = confirm("¿Estás seguro de que quieres cancelar la edición? Se perderán los cambios")
+      if(!confirmacion)
+        return;
+    }
+    this.procesarCambioEstado(this.acciones.EDICION_CANCELADA)
+  }
+  procesarFormularioEdicion() { // Cuando se haga un submit en el formulario
     //this.formulario!.dirty // Si ha habido cambios
     //this.formulario!.valid // Si es valido
-    if(this.formulario!.valid && this.formulario!.dirty){
-      console.log(this.formulario!.get('email')!.value)
-      console.log(this.formulario!.get('telefono')!.value)
-      this.usuarioService.editarUsuario(this.datos.datosDeUsuario!.id,
-        //this.mapeadorDatosModificados(this.formulario!)
-                    {
-                      email: this.formulario!.get('email')!.value, 
-                      telefono: this.formulario!.get('telefono')!.value
-                    }
-        ).subscribe({
-                        next: (datosDeUsuario: DatosDeUsuario) => {
-                                  //  TODO: Esto debería llevarnos a estado Normal... y me vendrían nuevos "datos" que actualizo
-                              },
-                        error: (error: any) => { 
-                                  // Función si va mal
-                                  // TODO: Esto llevaría el componente a estado: EnEsperaDeConfirmacionTrasError
-                              console.log(error)
-                            }    
-                     });
+    if(!this.formulario!.valid){
+      alert("Formulario no valido. Por favor, revisa los campos")
+      return;
     }
-  }
-/*
-  mapeadorDatosModificados(formulario: FormGroup): DatosModificablesDeUsuario {
-    return {
-      email: formulario!.get('email')!.value, 
-      telefono: formulario!.get('telefono')!.value
-    }
-  }
-*/
-  ngOnInit(): void {
-    // Si me pasan como usuario un  ID numerico, solicitamos los DatosDeUsuario al servicio
-    if (this.maquinaEstados.isInState(EstadosComponenteUsuario.CARGANDO)) {
-      this.cargaIniciada.emit(new CargaIniciada(this.usuario));
-      this.usuarioService.getUsuario(this.usuario as number).subscribe({
-        next: (datosDeUsuario: DatosDeUsuario) => { // Función si va bien
-          this.datos = this.maquinaEstados.cargaFinalizada(datosDeUsuario);
-          //this.datosUsuarioFormulario = {...this.datos.datosDeUsuario!} // Copia de los datos del usuario. Oportunidad de hacer un CANCELAR
-          this.usuarioCargado.emit(new CargaFinalizada(this.usuario));
+    if (this.formulario!.dirty) {
+      this.procesarCambioEstado(this.acciones.EDICION_FINALIZADA)
+      this.usuarioService.editarUsuario(this.datos.userData!.id,
+        {
+          email: this.formulario!.get('email')!.value,
+          telefono: this.formulario!.get('telefono')!.value
+        }
+      ).subscribe({
+        next: (datosDeUsuario: DatosDeUsuario) => {
+          this.procesarCambioEstado(AccionesComponenteUsuario.EDICION_ALMACENADA, { userData: datosDeUsuario });
         },
         error: (error: any) => {
-          console.log(error)                              // Función si va mal
-          this.datos = this.maquinaEstados.irAError(error);
-          this.usuarioError.emit(new CargaFallida(this.usuario));
+          this.procesarCambioEstado(AccionesComponenteUsuario.ALMACENAMIENTO_FALLIDO, { error: error });
         }
       });
-    }
-  }
-  
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['borrable'] || changes['editable']) {
-      this.datos = this.maquinaEstados.asignarCaracteristicasDelComponente(this.borrable, this.editable);
-    }
-  }
-
-  procesarCambioEstado(cambioDeEstado: () => UsuarioComponentModel) {
-    this.datos = cambioDeEstado();
-    // En funcion del tipo de cambio de estado, lanzar un evento u otro 
-    switch (cambioDeEstado) {
-      case this.maquinaEstados.cancelarBorrado:
-        this.usuarioBorrado.emit(new BorradoCancelado(this.usuario));
-        break;
-      case this.maquinaEstados.aceptarBorrado:
-        this.usuarioBorrado.emit(new BorradoConfirmado(this.usuario));
-        break;
-      case this.maquinaEstados.iniciarBorrado:
-        this.borradoIniciado.emit(new BorradoSolicitado(this.usuario));
-        break;
-      case this.maquinaEstados.cancelarEdicion:
-        this.usuarioBorrado.emit(new EdicionCancelada(this.usuario));
-        break;
-      case this.maquinaEstados.aceptarEdicion:
-        this.procesarFormularioEdicion();
-        this.usuarioBorrado.emit(new EdicionConfirmada(this.usuario));
-        break;
-      case this.maquinaEstados.iniciarEdicion:
-        this.crearFormularioEdicion();
-        this.edicionIniciada.emit(new EdicionSolicitada(this.usuario));
-        break;
+    }else {
+      this.procesarCambioEstado(AccionesComponenteUsuario.EDICION_CANCELADA);
     }
   }
 }
-
 

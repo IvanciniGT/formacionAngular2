@@ -2,17 +2,17 @@ import { Observable } from "rxjs";
 import { DatosDeUsuario } from "src/app/models/usuario.model";
 import { DatosModificablesDeUsuario } from "src/app/models/usuario.update.model";
 
-export interface UsuarioService {
+export abstract class UsuarioService {
 
-  editarUsuario(id: number, nuevosDatos: DatosModificablesDeUsuario): Observable<DatosDeUsuario>;
+  abstract editarUsuario(id: number, nuevosDatos: DatosModificablesDeUsuario): Observable<DatosDeUsuario>;
 
-  getUsuario(id: number): Observable<DatosDeUsuario | undefined>;
+  abstract getUsuario(id: number): Observable<DatosDeUsuario | undefined>;
 
-  getUsuarios(): Observable<DatosDeUsuario[]>;
+  abstract getUsuarios(): Observable<DatosDeUsuario[]>;
 
-  nuevoUsuario(datos: DatosModificablesDeUsuario): Observable<DatosDeUsuario>;
+  abstract nuevoUsuario(datos: DatosModificablesDeUsuario): Observable<DatosDeUsuario>;
 
-  borrarUsuario(id: number): Observable<DatosDeUsuario | undefined>;
+  abstract borrarUsuario(id: number): Observable<DatosDeUsuario | undefined>;
 
 }
 // MOCK: 1º Necesita stubear todas las funciones... con distintos datos de entrada y salida

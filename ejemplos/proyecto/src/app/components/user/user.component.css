@@ -1,0 +1,39 @@
+#usuario {
+    margin:5px;
+    border: solid 1px black;
+    background-color: #f0f0f0;
+}
+
+#botonera {
+    float: right;
+    display: flex;
+    flex-direction: row;
+}
+
+#datos div,
+#contacto div{
+    margin: 10px;
+}
+#formulario div{
+    margin-left: 10px;
+}
+#datos span::after,
+#contacto span::after,
+#formulario label::after {
+    content: ":";
+}
+
+#datos span,
+#contacto span,
+#formulario label {
+    width: 30%;
+    max-width: 100px;
+    display: inline-block;
+    text-align: right;
+}
+
+#formulario input {
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    font-size: 1em;
+    margin:0;
+}

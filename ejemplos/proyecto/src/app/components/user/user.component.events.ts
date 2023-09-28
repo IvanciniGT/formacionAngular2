@@ -18,7 +18,10 @@ export class BorradoConfirmado extends UsuarioComponentEvent {}
 export class BorradoCancelado extends UsuarioComponentEvent {}
 
 export class EdicionSolicitada extends UsuarioComponentEvent {}
+export class EdicionPendienteDeAlmacenar extends UsuarioComponentEvent {}
 export class EdicionConfirmada extends UsuarioComponentEvent {}
+export class EdicionFallida extends UsuarioComponentEvent {}
+export class ReintentoDeAlmacenarEdicion extends UsuarioComponentEvent {}
 export class EdicionCancelada extends UsuarioComponentEvent {}
 
 export class CargaFinalizada extends UsuarioComponentEvent {}

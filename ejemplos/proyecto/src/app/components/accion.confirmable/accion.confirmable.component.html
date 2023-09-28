@@ -1,7 +1,7 @@
 <div class="botones">
     <button *ngIf="! this.solicitado"     class="btn btn-primary" (click)="this.clickEnAccion()" >{{this.caption}}</button>
-    <button *ngIf="this.solicitado"       class="btn btn-primary" (click)="this.clickEnCancelacion()" >{{this.captionCancelacion}}</button>
-    <button *ngIf="this.solicitado"       class="btn btn-primary" (click)="this.clickEnConfirmacion()" >{{this.captionConfirmacion}}</button>
+    <button *ngIf="this.solicitado"       class="btn btn-primary" (click)="this.clickEnCancelacion()"  [disabled]="!this.cancelacionActivada" >{{this.captionCancelacion}}</button>
+    <button *ngIf="this.solicitado"       class="btn btn-primary" (click)="this.clickEnConfirmacion()" [disabled]="!this.confirmacionActivada" >{{this.captionConfirmacion}}</button>
 </div>
 
 <!--

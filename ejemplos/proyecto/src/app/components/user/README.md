@@ -60,24 +60,22 @@ export interface UsuarioComponentModel {
 
 ```mermaid
 stateDiagram-v2
-        [*] --> Cargando: Si se pasa id.
-        [*] --> Normal: Si se pasan los\ndatos del usuario.
-        Cargando
-        Cargando --> Error: Problema con backend.
-        Cargando --> Normal: Al recibir datos\ndel usuario.
-        Normal --> enEdicion: Click en Editar.
-        note right of enEdicion: Solo si es editable.
-        enEdicion --> Normal: Click en Cancelar.
-        enEdicion --> EnEsperaDeBackEnd: Click en Aceptar.
-        EnEsperaDeBackEnd
-        EnEsperaDeBackEnd --> Normal: Si la actualización\nse realiza correctamente.
-        EnEsperaDeBackEnd --> EnEsperaDeConfirmacionTrasError: Si la actualización falla.
-        EnEsperaDeConfirmacionTrasError --> EnEsperaDeBackEnd: Si el usuario pide reintentar (o yo).
-        EnEsperaDeConfirmacionTrasError --> Normal: Si el usuario pide cancelar la edición (o yo).
-        Normal --> enBorrado: Click en Borrar.
-        note right of enBorrado: Solo si es borrable.
-        enBorrado --> Normal: Click en Cancelar.
-        enBorrado --> Normal: Click en Aceptar.
+        [*] --> REALIZANDO_CARGA_INICIAL: Si se pasa id.
+        [*] --> NORMAL: Si se pasan los\ndatos del usuario.
+        REALIZANDO_CARGA_INICIAL --> ERROR_EN_CARGA_INICIAL: Problema con backend.
+        REALIZANDO_CARGA_INICIAL --> NORMAL: Al recibir datos\ndel usuario.
+        NORMAL --> EN_EDICION: Click en Editar.
+        note right of EN_EDICION: Solo si es editable.
+        EN_EDICION --> NORMAL: Click en Cancelar.
+        EN_EDICION --> ALMACENANDO_EDICION: Click en Aceptar.
+        ALMACENANDO_EDICION --> NORMAL: Si la actualización\nse realiza correctamente.
+        ALMACENANDO_EDICION --> ERROR_EN_ALMACENAMIENTO_DE_EDICION: Si la actualización falla.
+        ERROR_EN_ALMACENAMIENTO_DE_EDICION --> ALMACENANDO_EDICION: Si el usuario pide reintentar (o yo).
+        ERROR_EN_ALMACENAMIENTO_DE_EDICION --> NORMAL: Si el usuario pide cancelar la edición (o yo).
+        NORMAL --> EN_BORRADO: Click en Borrar.
+        note right of EN_BORRADO: Solo si es borrable.
+        EN_BORRADO --> NORMAL: Click en Cancelar.
+        EN_BORRADO --> NORMAL: Click en Aceptar.
 ```
 
 
