@@ -27,10 +27,19 @@
     <div id="listado">
         <div *ngFor="let usuario of this.usuariosAMostrar">
             <!--input type="checkbox" [checked]="usuario.seleccionado" (change)="this.cambiarSeleccion(usuario)"-->
-            <usuario [data]="usuario" [borrable]="this.usuariosBorrables" [editable]="this.usuariosEditables"
-                (usuarioBorrado)="this.borrarUsuario(usuario)" [seleccionable]="this.usuariosBorrables" 
+            <usuario [data]="usuario" 
+                [borrable]="this.esBorrable(usuario)" 
+                [editable]="this.esEditable(usuario)"
+                [seleccionable]="this.usuariosBorrables" 
+                [seleccionado]="this.usuariosSeleccionados.includes(usuario)"
+                (usuarioBorrado)="this.borrarUsuario(usuario)" 
                 (onSeleccionado)="this.seleccionar(usuario)"
                 (onDeseleccionado)="this.deseleccionar(usuario)"
+                (borradoIniciado) ="this.borradoIniciado(usuario)"
+                (borradoCancelado) ="this.borradoCancelado(usuario)"
+                (edicionIniciada) ="this.edicionIniciada(usuario)"
+                (edicionCancelada) ="this.edicionCancelada(usuario)"
+                  
             ></usuario>
         </div>
     </div>

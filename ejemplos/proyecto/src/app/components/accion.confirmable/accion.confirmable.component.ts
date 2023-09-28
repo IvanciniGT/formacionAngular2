@@ -31,17 +31,20 @@ export class AccionConfirmableComponent {
     this.solicitado = false;
   }
 
-  clickEnAccion(){
+  clickEnAccion(evento: MouseEvent){
     this.solicitado = true;
     this.onSolicitado.emit();
+    evento.stopPropagation();
   }
-  clickEnConfirmacion(){
+  clickEnConfirmacion(evento: MouseEvent){
     this.solicitado = false;
     this.onConfirmado.emit();
+    evento.stopPropagation();
   }
-  clickEnCancelacion(){
+  clickEnCancelacion(evento: MouseEvent){
     this.solicitado = false;
     this.onCancelado.emit();
+    evento.stopPropagation();
   }
 
 }

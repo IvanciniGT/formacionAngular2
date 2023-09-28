@@ -32,6 +32,9 @@ export class UserlistComponent implements OnInit{
 
   usuariosSeleccionados: Array<DatosDeUsuario> = [];
 
+  usuarioEnBorrado?: DatosDeUsuario
+  usuarioEnEdicion?: DatosDeUsuario
+
   get Estados(){
     return Estados;
   }
@@ -78,6 +81,25 @@ export class UserlistComponent implements OnInit{
       this.cambioSeleccion();
     }
   }
+  borradoIniciado(usuario:DatosDeUsuario){
+    this.usuarioEnBorrado = usuario;
+  }
+  borradoCancelado(usuario:DatosDeUsuario){
+    if(this.usuarioEnBorrado === usuario)
+      this.usuarioEnBorrado = undefined;
+    else
+      console.error("TENGO UN BUG QUE TE CAGAS")
+  }
+
+  edicionCancelada(usuario:DatosDeUsuario){
+    if(this.usuarioEnEdicion === usuario)
+      this.usuarioEnEdicion = undefined;
+    else
+      console.error("TENGO UN BUG QUE TE CAGAS")
+  }
+  edicionIniciada(usuario:DatosDeUsuario){
+    this.usuarioEnEdicion = usuario;
+  }
 
   borrarUsuario(usuarioSeleccionado: DatosDeUsuario){
     this.usuarioService.borrarUsuario(usuarioSeleccionado.id).subscribe({
@@ -88,6 +110,7 @@ export class UserlistComponent implements OnInit{
         this.calcularUsuariosAMostrar();
         this.usuariosSeleccionados = this.usuariosSeleccionados.filter((usuario) => usuario.id !== usuarioSeleccionado.id);
         this.cambioSeleccion();
+        this.usuarioEnBorrado = undefined;
       },
       error: (err) => {
         //this.state = Estados.ERROR_EN_CARGA; // TODO: Estados nuevos.
@@ -109,9 +132,15 @@ export class UserlistComponent implements OnInit{
   borrarSeleccionados(){
     this.usuariosSeleccionados.forEach((usuarioSeleccionado) => this.borrarUsuario(usuarioSeleccionado));
   }
+  esBorrable(usuario:DatosDeUsuario){
+    return this.usuariosBorrables &&  this.state === Estados.DATOS_CARGADOS && this.usuarioEnEdicion === undefined && (this.usuarioEnBorrado === undefined || this.usuarioEnBorrado === usuario)
+  }
+  esEditable(usuario:DatosDeUsuario){
+    return this.usuariosEditables && this.state === Estados.DATOS_CARGADOS && this.usuarioEnBorrado === undefined && (this.usuarioEnEdicion === undefined || this.usuarioEnEdicion === usuario)
+  }
 
   mostrarBotonSeleccionarTodos(){
-    return this.usuariosBorrables && (this.state === Estados.DATOS_CARGADOS || this.state === Estados.ALGUNO_SELECCIONADO);
+    return this.usuariosBorrables && this.usuarioEnEdicion === undefined  && this.usuarioEnBorrado === undefined && (this.state === Estados.DATOS_CARGADOS || this.state === Estados.ALGUNO_SELECCIONADO);
   }
 
   mostrarBotonDeseleccionarTodos(){

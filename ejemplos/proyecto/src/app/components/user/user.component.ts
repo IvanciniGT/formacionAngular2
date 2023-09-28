@@ -114,6 +114,9 @@ export class UsuarioComponent implements OnInit, OnChanges {
     if (changes['borrable'] || changes['editable']) {
       this.datos = this.maquinaEstados.updateProperties({ deletable: this.borrable, updatable: this.editable });
     } // todo: userID
+    if (changes['seleccionado']) {
+      this.datos = this.maquinaEstados.updateProperties({ seleccionado: this.seleccionado });
+    }
   }
 
   procesarCambioEstado(cambioDeEstado: ComponentStateChange<UsuarioComponentModel, Partial<UsuarioComponentModel>>, newData: Partial<UsuarioComponentModel> = {}) {
