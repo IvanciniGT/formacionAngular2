@@ -122,12 +122,15 @@ export class UserlistComponent implements OnInit{
     return this.usuariosBorrables && (this.state === Estados.TODOS_SELECCIONADOS || this.state === Estados.ALGUNO_SELECCIONADO);
   }
 
+  private referencia?:any
   establecerFiltro(filtro: string){
     filtro = filtro.toLowerCase();
     console.log(filtro, this.filtro);
     if(filtro !== this.filtro) {
       this.filtro = filtro;
-      this.calcularUsuariosAMostrar();
+      if(this.referencia)
+        clearTimeout(this.referencia);
+      this.referencia = setTimeout(() => this.calcularUsuariosAMostrar(), 200);
     }
   }
 
