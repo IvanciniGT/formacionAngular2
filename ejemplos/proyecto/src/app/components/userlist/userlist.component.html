@@ -4,8 +4,8 @@
         <input type="text"
                placeholder="Filtrar por"
                #filtro 
-               (keyUp)="this.establecerFiltro(filtro.value)"
-               (onChange)="this.establecerFiltro(filtro.value)"
+               (keyup)="this.establecerFiltro(filtro.value)"
+               (change)="this.establecerFiltro(filtro.value)"
                >
     </div>
     <div id="botones">
@@ -15,7 +15,7 @@
             Seleccionar todos
         </button>
         <button
-            *ngIf   ="!this.mostrarBotonDeseleccionarTodos()"
+            *ngIf   ="this.mostrarBotonDeseleccionarTodos()"
             (click) ="this.deseleccionarTodos()">
             Deseleccionar todos
         </button>
@@ -27,7 +27,9 @@
     <div id="listado">
         <div *ngFor="let usuario of this.usuariosAMostrar">
             <!--input type="checkbox" [checked]="usuario.seleccionado" (change)="this.cambiarSeleccion(usuario)"-->
-            <usuario [data]="usuario" [borrable]="this.usuariosBorrables"></usuario>
+            <usuario [data]="usuario" [borrable]="this.usuariosBorrables"
+                (usuarioBorrado)="this.borrarUsuario(usuario)"
+            ></usuario>
         </div>
     </div>
 </div>

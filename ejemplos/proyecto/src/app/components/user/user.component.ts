@@ -59,7 +59,7 @@ export class UsuarioComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    this.datos = this.maquinaEstados.updateProperties({ userData: typeof this.data === 'number' ? null : this.data, userId: typeof this.data === 'number' ? this.data : this.data?.id, deletable: this.borrable, updatable: this.editable });
+    this.datos = this.maquinaEstados.updateProperties({ userData: typeof this.data === 'number' ? undefined : this.data, userId: typeof this.data === 'number' ? this.data : this.data?.id, deletable: this.borrable, updatable: this.editable });
     // Si me pasan como usuario un  ID numerico, solicitamos los DatosDeUsuario al servicio
     if (this.maquinaEstados.canChangeState(AccionesComponenteUsuario.INICIAR_CARGA_INICIAL)) {
       this.procesarCambioEstado(AccionesComponenteUsuario.INICIAR_CARGA_INICIAL, { userId: this.datos.userId });

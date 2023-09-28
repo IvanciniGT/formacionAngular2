@@ -79,16 +79,14 @@ export class UserlistComponent implements OnInit{
     }
   }
 
-  borrar(usuarioSeleccionado: DatosDeUsuario){
+  borrarUsuario(usuarioSeleccionado: DatosDeUsuario){
     this.usuarioService.borrarUsuario(usuarioSeleccionado.id).subscribe({
       next: () => {
-        this.todosLosUsuarios = this.todosLosUsuarios.filter((usuario) => {
-          usuario.id !== usuarioSeleccionado.id;
-        });
+        console.log(this.todosLosUsuarios)
+        this.todosLosUsuarios = this.todosLosUsuarios.filter((usuario) => usuario.id !== usuarioSeleccionado.id);
+        console.log(this.todosLosUsuarios)
         this.calcularUsuariosAMostrar();
-        this.usuariosSeleccionados = this.usuariosSeleccionados.filter((usuario) => {
-          usuario.id !== usuarioSeleccionado.id;
-        });
+        this.usuariosSeleccionados = this.usuariosSeleccionados.filter((usuario) => usuario.id !== usuarioSeleccionado.id);
         this.cambioSeleccion();
       },
       error: (err) => {
@@ -109,7 +107,7 @@ export class UserlistComponent implements OnInit{
   }
 
   borrarSeleccionados(){
-    this.usuariosSeleccionados.forEach((usuarioSeleccionado) => this.borrar(usuarioSeleccionado));
+    this.usuariosSeleccionados.forEach((usuarioSeleccionado) => this.borrarUsuario(usuarioSeleccionado));
   }
 
   mostrarBotonSeleccionarTodos(){
@@ -126,6 +124,7 @@ export class UserlistComponent implements OnInit{
 
   establecerFiltro(filtro: string){
     filtro = filtro.toLowerCase();
+    console.log(filtro, this.filtro);
     if(filtro !== this.filtro) {
       this.filtro = filtro;
       this.calcularUsuariosAMostrar();
