@@ -25,7 +25,7 @@
         </accion-confirmable>
     </div>
     <div id="listado">
-        <div *ngFor="let usuario of this.usuariosAMostrar">
+        <div *ngFor="let usuario of this.usuariosAMostrar; trackBy: this.comoIdentificoCadaComponente">
             <!--input type="checkbox" [checked]="usuario.seleccionado" (change)="this.cambiarSeleccion(usuario)"-->
             <usuario [data]="usuario" 
                 [borrable]="this.esBorrable(usuario)" 
@@ -39,7 +39,6 @@
                 (borradoCancelado) ="this.borradoCancelado(usuario)"
                 (edicionIniciada) ="this.edicionIniciada(usuario)"
                 (edicionCancelada) ="this.edicionCancelada(usuario)"
-                  
             ></usuario>
         </div>
     </div>

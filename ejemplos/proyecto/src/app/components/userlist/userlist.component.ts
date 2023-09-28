@@ -163,6 +163,10 @@ export class UserlistComponent implements OnInit{
     }
   }
 
+  comoIdentificoCadaComponente(index: number, usuario: DatosDeUsuario){
+    return usuario.id;
+  }
+
   private calcularUsuariosAMostrar(){
     this.usuariosAMostrar = this.todosLosUsuarios.filter((usuario) => {
       return usuario.nombre.toLowerCase().includes(this.filtro)   ||
