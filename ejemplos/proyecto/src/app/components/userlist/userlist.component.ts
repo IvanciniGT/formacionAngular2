@@ -11,7 +11,6 @@ enum Estados {
   TODOS_SELECCIONADOS = 4
 }
 
-
 @Component({
   selector: 'listado-usuarios',
   templateUrl: './userlist.component.html',
@@ -33,6 +32,10 @@ export class UserlistComponent implements OnInit{
 
   usuariosSeleccionados: Array<DatosDeUsuario> = [];
 
+  get Estados(){
+    return Estados;
+  }
+
   constructor(private usuarioService:UsuarioService){
   }
 
@@ -49,7 +52,7 @@ export class UserlistComponent implements OnInit{
     });
   }
 
-  cambioSeleccion(){
+  private cambioSeleccion(){
     if(this.usuariosSeleccionados.length === 0)
       this.state = Estados.DATOS_CARGADOS;
     else if(this.usuariosSeleccionados.length === this.usuariosAMostrar.length)
@@ -65,7 +68,7 @@ export class UserlistComponent implements OnInit{
       this.cambioSeleccion();
     }
   }
-  
+
   deseleccionar(usuario: DatosDeUsuario){
     // Si está lo quitamos
     if(this.usuariosSeleccionados.includes(usuario)){
@@ -110,23 +113,26 @@ export class UserlistComponent implements OnInit{
   }
 
   mostrarBotonSeleccionarTodos(){
-    return this.state === Estados.DATOS_CARGADOS || this.state === Estados.ALGUNO_SELECCIONADO;
+    return this.usuariosBorrables && (this.state === Estados.DATOS_CARGADOS || this.state === Estados.ALGUNO_SELECCIONADO);
   }
 
   mostrarBotonDeseleccionarTodos(){
-    return this.state === Estados.TODOS_SELECCIONADOS || this.state === Estados.ALGUNO_SELECCIONADO;
+    return this.usuariosBorrables && (this.state === Estados.TODOS_SELECCIONADOS || this.state === Estados.ALGUNO_SELECCIONADO);
   }
 
   mostrarBotonBorrar  (){
-    return this.state === Estados.TODOS_SELECCIONADOS || this.state === Estados.ALGUNO_SELECCIONADO;
+    return this.usuariosBorrables && (this.state === Estados.TODOS_SELECCIONADOS || this.state === Estados.ALGUNO_SELECCIONADO);
   }
 
   establecerFiltro(filtro: string){
-    this.filtro = filtro;
-    this.calcularUsuariosAMostrar();
+    filtro = filtro.toLowerCase();
+    if(filtro !== this.filtro) {
+      this.filtro = filtro;
+      this.calcularUsuariosAMostrar();
+    }
   }
 
-  calcularUsuariosAMostrar(){
+  private calcularUsuariosAMostrar(){
     this.usuariosAMostrar = this.todosLosUsuarios.filter((usuario) => {
       return usuario.nombre.toLowerCase().includes(this.filtro)   ||
              usuario.apellido.toLowerCase().includes(this.filtro) ||

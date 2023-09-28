@@ -1,15 +1,41 @@
-<div>
-    <li *ngFor></li>
-    <usuario [data]="1" [borrable]="true" [editable]="true"></usuario>
-    <usuario [data]="2" [borrable]="true" [editable]="true"></usuario>
-    <usuario [data]="3" [borrable]="true" [editable]="true"></usuario>
-    <usuario [data]="4" [borrable]="true" [editable]="true"></usuario>
-    <usuario [data]="1" [borrable]="true" [editable]="true"></usuario>
-    <usuario [data]="2" [borrable]="true" [editable]="true"></usuario>
-    <usuario [data]="3" [borrable]="true" [editable]="true"></usuario>
-    <usuario [data]="4" [borrable]="true" [editable]="true"></usuario>
-    <usuario [data]="1" [borrable]="true" [editable]="true"></usuario>
-    <usuario [data]="2" [borrable]="true" [editable]="true"></usuario>
-    <usuario [data]="3" [borrable]="true" [editable]="true"></usuario>
-    <usuario [data]="4" [borrable]="true" [editable]="true"></usuario>
+<div id="listado-usuarios" *ngIf="this.state !== Estados.CARGANDO_DATOS
+                                && this.state !== Estados.ERROR_EN_CARGA">
+    <div id="filtro">
+        <input type="text"
+               placeholder="Filtrar por"
+               #filtro 
+               (keyUp)="this.establecerFiltro(filtro.value)"
+               (onChange)="this.establecerFiltro(filtro.value)"
+               >
+    </div>
+    <div id="botones">
+        <button
+            *ngIf   ="this.mostrarBotonSeleccionarTodos()"
+            (click) ="this.seleccionarTodos()">
+            Seleccionar todos
+        </button>
+        <button
+            *ngIf   ="!this.mostrarBotonDeseleccionarTodos()"
+            (click) ="this.deseleccionarTodos()">
+            Deseleccionar todos
+        </button>
+        <accion-confirmable caption="Borrar seleccionados" captionConfirmacion="Confirmar" captionCancelacion="Cancelar"
+            *ngIf="this.mostrarBotonBorrar()"
+            (onConfirmado)="this.borrarSeleccionados()">
+        </accion-confirmable>
+    </div>
+    <div id="listado">
+        <div *ngFor="let usuario of this.usuariosAMostrar">
+            <!--input type="checkbox" [checked]="usuario.seleccionado" (change)="this.cambiarSeleccion(usuario)"-->
+            <usuario [data]="usuario" [borrable]="this.usuariosBorrables"></usuario>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="this.state === Estados.CARGANDO_DATOS">
+    <p>Cargando datos...</p>
+</div>
+
+<div *ngIf="this.state === Estados.ERROR_EN_CARGA">
+    <p>Error en la carga de datos</p>
 </div>
