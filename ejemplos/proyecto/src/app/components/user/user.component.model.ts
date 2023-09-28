@@ -11,14 +11,13 @@ export interface UsuarioComponentProperties extends ComponentProperties{
 }
 
 export class UsuarioComponentModel implements ComponentModel, UsuarioComponentProperties{
-    state: ComponentState;
-    userData?: DatosDeUsuario;
-    error?: Error;
+    // No van asociadas a cambios de estado
     userId?: number
     updatable: boolean = false
     deletable: boolean = false
-    constructor() {
-        this.state = EstadosComponenteUsuario.INICIO;
-    }
+    // Van asociadas a cambios de estado
+    state: ComponentState  = EstadosComponenteUsuario.INICIO;
+    userData?: DatosDeUsuario;
+    error?: Error;
 
 }

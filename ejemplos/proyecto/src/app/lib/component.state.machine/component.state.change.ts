@@ -2,11 +2,11 @@ import { ComponentState } from "src/app/lib/component.state.machine/component.st
 import { ComponentModel } from "src/app/lib/component.state.machine/component.model";
 
 
-
 export class ComponentStateChange<T extends ComponentModel, M extends Partial<T>> {
-    private constructor(public readonly initialState: ComponentState,
+    private constructor(
+        public readonly initialState: ComponentState,
         public readonly finalState: ComponentState,
-        private readonly validation: (compoentModel: T) => boolean = () => true) { }
+        private readonly validation: (componentModel: T) => boolean = () => true) { }
 
     execute(componentModel: T, newData: M): T {
         if (componentModel.state !== this.initialState) {
@@ -17,12 +17,11 @@ export class ComponentStateChange<T extends ComponentModel, M extends Partial<T>
         }
         return { ...componentModel, ...newData, state: this.finalState };
     }
+
     canBeExecuted(componentModel: T): boolean {
-        if (componentModel.state !== this.initialState) {
-            return false
-        }
-        return this.validation(componentModel);
+        return componentModel.state === this.initialState && this.validation(componentModel);
     }
+
     static create<T extends ComponentModel, M extends Partial<T>>(
         initialState: ComponentState,
         finalState: ComponentState,

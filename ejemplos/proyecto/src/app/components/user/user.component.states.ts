@@ -15,6 +15,7 @@ export const EstadosComponenteUsuario = Object.freeze({
     ERROR_EN_ALMACENAMIENTO_DE_EDICION: ComponentState.create('ERROR_EN_ALMACENAMIENTO_DE_EDICION')
 });
 
+
 export const AccionesComponenteUsuario = Object.freeze({
     INICIAR_CARGA_INICIAL: ComponentStateChange.create<UsuarioComponentModel, { userId: number }>(
         EstadosComponenteUsuario.INICIO, EstadosComponenteUsuario.REALIZANDO_CARGA_INICIAL,

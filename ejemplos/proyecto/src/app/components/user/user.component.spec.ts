@@ -5,7 +5,7 @@ import { UsuarioService } from 'src/app/services/user/user.service';
 import { UsuarioFakeService } from 'src/app/services/user/impl/user.fake.service';
 import { ReactiveFormsModule } from '@angular/forms';
 
-describe('UserComponent', () => {
+describe('Componente Usuario', () => {
   let component: UsuarioComponent;
   let fixture: ComponentFixture<UsuarioComponent>;
 
