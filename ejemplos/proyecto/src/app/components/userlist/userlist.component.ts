@@ -61,7 +61,8 @@ export class UserlistComponent implements OnInit{
     })
     // Si no hay operaciones pendientes,... o la que hay es mia... puedo operar... si no, no puedo.
     store.select(state => state.usuarios).subscribe({
-      next: (usuariosState) => this.puedeHacerEsteComponenteOperaciones = !usuariosState.pendingOperation || usuariosState.pendingOperation.component === this
+      next: (usuariosState) => this.puedeHacerEsteComponenteOperaciones = !usuariosState.pendingOperation 
+      || usuariosState.pendingOperation.component === this.toString()
     });
   }
 
@@ -106,7 +107,7 @@ export class UserlistComponent implements OnInit{
   }
   borradoIniciado(usuario:DatosDeUsuario){
     // Aquí que debemos hacer?
-    this.store.dispatch(nuevoUsuarioEnEliminacion({user: usuario, component: this}));
+    this.store.dispatch(nuevoUsuarioEnEliminacion({user: usuario, component: this.toString()}));
     this.usuarioEnBorrado = usuario;
   }
   borradoCancelado(usuario:DatosDeUsuario){
@@ -125,7 +126,7 @@ export class UserlistComponent implements OnInit{
       console.error("TENGO UN BUG QUE TE CAGAS")
   }
   edicionIniciada(usuario:DatosDeUsuario){
-    this.store.dispatch(nuevoUsuarioEnEdicion({user: usuario, component: this}));
+    this.store.dispatch(nuevoUsuarioEnEdicion({user: usuario, component: this.toString()}));
     this.usuarioEnEdicion = usuario;
   }
 
