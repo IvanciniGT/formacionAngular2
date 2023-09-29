@@ -1,11 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
 import { DatosDeUsuario } from 'src/app/models/usuario.model';
 import { UsuarioService } from 'src/app/services/user/user.service';
 import { nuevoUsuarioEnEdicion, nuevoUsuarioEnEliminacion, operacionFinalizada } from 'src/app/state/usuarios/usuarios.actions';
 import { UsuariosState } from 'src/app/state/usuarios/usuarios.state';
-
 
 enum Estados {
   CARGANDO_DATOS = 0,
@@ -20,7 +18,10 @@ enum Estados {
   templateUrl: './userlist.component.html',
   styleUrls: ['./userlist.component.css']
 })
-export class UserlistComponent implements OnInit{
+export class UserlistComponent implements OnInit {
+
+  static idGenerator: number = 0;
+  readonly id = "list-component-" + UserlistComponent.idGenerator++;
 
   @Input()
   usuariosEditables: boolean = false;
@@ -38,31 +39,30 @@ export class UserlistComponent implements OnInit{
 
   usuarioEnBorrado?: DatosDeUsuario
 
-// En algun momento recibiré un cambio en el estado global de los usuarios
-// Lo tendremos que procesar:
-// Si no hay operaciones pendientes, yo puedo hacer nuevas operaciones
-// Si hay operaciones pendientes, yo no puedo hacer nuevas operaciones
-// Lo que si... es que si hay una operacion pendiente MIA ... yo sigo sin poder hacer operaciones nuevas... pero si debo
-// continuar con esa operacion que tengo pendiente YO
+  // En algun momento recibiré un cambio en el estado global de los usuarios
+  // Lo tendremos que procesar:
+  // Si no hay operaciones pendientes, yo puedo hacer nuevas operaciones
+  // Si hay operaciones pendientes, yo no puedo hacer nuevas operaciones
+  // Lo que si... es que si hay una operacion pendiente MIA ... yo sigo sin poder hacer operaciones nuevas... pero si debo
+  // continuar con esa operacion que tengo pendiente YO
 
-// Cuando se haga un click en borrar... vamos a asignar la variable usuarioEnBorrado?
+  // Cuando se haga un click en borrar... vamos a asignar la variable usuarioEnBorrado?
 
   usuarioEnEdicion?: DatosDeUsuario
 
   puedeHacerEsteComponenteOperaciones: boolean = true;
 
-  get Estados(){
+  get Estados() {
     return Estados;
   }
 
-  constructor(private usuarioService:UsuarioService, private store: Store<{usuarios: UsuariosState}>) {
-    store.select(state => state).subscribe({
-      next: (state) => console.log("NUEVO ESTADO GLOBAL: ", state)
-    })
+  constructor(private usuarioService: UsuarioService, private store: Store<{ usuarios: UsuariosState }>) {
     // Si no hay operaciones pendientes,... o la que hay es mia... puedo operar... si no, no puedo.
     store.select(state => state.usuarios).subscribe({
-      next: (usuariosState) => this.puedeHacerEsteComponenteOperaciones = !usuariosState.pendingOperation 
-      || usuariosState.pendingOperation.component === this.toString()
+      next: (usuariosState) => {
+        this.puedeHacerEsteComponenteOperaciones = !usuariosState.pendingOperation
+          || usuariosState.pendingOperation.component === this.id
+      }
     });
   }
 
@@ -78,60 +78,62 @@ export class UserlistComponent implements OnInit{
       }
     });
   }
-
-  private cambioSeleccion(){
-    if(this.usuariosSeleccionados.length === 0)
+  private cambioSeleccion() {
+    if (this.usuariosSeleccionados.length === 0)
       this.state = Estados.DATOS_CARGADOS;
-    else if(this.usuariosSeleccionados.length === this.usuariosAMostrar.length)
+    else if (this.usuariosSeleccionados.length === this.usuariosAMostrar.length)
       this.state = Estados.TODOS_SELECCIONADOS;
     else
       this.state = Estados.ALGUNO_SELECCIONADO;
   }
-
-  seleccionar(usuario: DatosDeUsuario){
+  seleccionar(usuario: DatosDeUsuario) {
     // Solo si no está ya
-    if(!this.usuariosSeleccionados.includes(usuario)){
+    if (!this.usuariosSeleccionados.includes(usuario)) {
       this.usuariosSeleccionados.push(usuario);
       this.cambioSeleccion();
     }
   }
-
-  deseleccionar(usuario: DatosDeUsuario){
+  deseleccionar(usuario: DatosDeUsuario) {
     // Si está lo quitamos
-    if(this.usuariosSeleccionados.includes(usuario)){
+    if (this.usuariosSeleccionados.includes(usuario)) {
       this.usuariosSeleccionados = this.usuariosSeleccionados.filter((usuarioSeleccionado) => {
         return usuarioSeleccionado.id !== usuario.id;
       });
       this.cambioSeleccion();
     }
   }
-  borradoIniciado(usuario:DatosDeUsuario){
+  borradoIniciado(usuario: DatosDeUsuario) {
     // Aquí que debemos hacer?
-    this.store.dispatch(nuevoUsuarioEnEliminacion({user: usuario, component: this.toString()}));
+    this.store.dispatch(nuevoUsuarioEnEliminacion({ user: usuario, component: this.id }));
     this.usuarioEnBorrado = usuario;
   }
-  borradoCancelado(usuario:DatosDeUsuario){
-    if(this.usuarioEnBorrado === usuario){
+  borradoCancelado(usuario: DatosDeUsuario) {
+    if (this.usuarioEnBorrado === usuario) {
       this.usuarioEnBorrado = undefined;
       this.store.dispatch(operacionFinalizada({}));
     } else
       console.error("TENGO UN BUG QUE TE CAGAS")
   }
-
-  edicionCancelada(usuario:DatosDeUsuario){
-    if(this.usuarioEnEdicion === usuario){
+  edicionFinalizada(usuario: DatosDeUsuario) {
+    this.store.dispatch(operacionFinalizada({}));
+    this.usuarioEnEdicion = undefined;
+  }
+  borradoFinalizado(usuario: DatosDeUsuario) {
+    this.store.dispatch(operacionFinalizada({}));
+    this.borrarUsuario(usuario)
+  }
+  edicionCancelada(usuario: DatosDeUsuario) {
+    if (this.usuarioEnEdicion === usuario) {
       this.usuarioEnEdicion = undefined;
       this.store.dispatch(operacionFinalizada({}));
-    }else
+    } else
       console.error("TENGO UN BUG QUE TE CAGAS")
   }
-  edicionIniciada(usuario:DatosDeUsuario){
-    this.store.dispatch(nuevoUsuarioEnEdicion({user: usuario, component: this.toString()}));
+  edicionIniciada(usuario: DatosDeUsuario) {
+    this.store.dispatch(nuevoUsuarioEnEdicion({ user: usuario, component: this.id }));
     this.usuarioEnEdicion = usuario;
   }
-
-  borrarUsuario(usuarioSeleccionado: DatosDeUsuario){
-    this.store.dispatch(operacionFinalizada({}));
+  borrarUsuario(usuarioSeleccionado: DatosDeUsuario) {
     this.usuarioService.borrarUsuario(usuarioSeleccionado.id).subscribe({
       next: () => {
         console.log(this.todosLosUsuarios)
@@ -148,70 +150,60 @@ export class UserlistComponent implements OnInit{
       }
     });
   }
-
-  seleccionarTodos(){
+  seleccionarTodos() {
     this.usuariosSeleccionados = this.usuariosAMostrar.slice();
     this.cambioSeleccion();
   }
-
-  deseleccionarTodos(){
+  deseleccionarTodos() {
     this.usuariosSeleccionados = [];
     this.cambioSeleccion();
   }
-
-  borrarSeleccionados(){
+  borrarSeleccionados() {
     this.usuariosSeleccionados.forEach((usuarioSeleccionado) => this.borrarUsuario(usuarioSeleccionado));
   }
-  esBorrable(usuario:DatosDeUsuario){
-    return this.puedeHacerEsteComponenteOperaciones 
-              && this.usuariosBorrables 
-              &&  this.state === Estados.DATOS_CARGADOS 
-              && this.usuarioEnEdicion === undefined 
-              && (this.usuarioEnBorrado === undefined || this.usuarioEnBorrado === usuario)
+  esBorrable(usuario: DatosDeUsuario) {
+    return this.puedeHacerEsteComponenteOperaciones
+      && this.usuariosBorrables
+      && this.state === Estados.DATOS_CARGADOS
+      && this.usuarioEnEdicion === undefined
+      && (this.usuarioEnBorrado === undefined || this.usuarioEnBorrado === usuario)
   }
-  esEditable(usuario:DatosDeUsuario){
-    return this.puedeHacerEsteComponenteOperaciones 
-              && this.usuariosEditables 
-              && this.state === Estados.DATOS_CARGADOS 
-              && this.usuarioEnBorrado === undefined 
-              && (this.usuarioEnEdicion === undefined || this.usuarioEnEdicion === usuario)
+  esEditable(usuario: DatosDeUsuario) {
+    return this.puedeHacerEsteComponenteOperaciones
+      && this.usuariosEditables
+      && this.state === Estados.DATOS_CARGADOS
+      && this.usuarioEnBorrado === undefined
+      && (this.usuarioEnEdicion === undefined || this.usuarioEnEdicion === usuario)
   }
-
-  mostrarBotonSeleccionarTodos(){
-    return this.usuariosBorrables && this.usuarioEnEdicion === undefined  && this.usuarioEnBorrado === undefined && (this.state === Estados.DATOS_CARGADOS || this.state === Estados.ALGUNO_SELECCIONADO);
+  mostrarBotonSeleccionarTodos() {
+    return this.usuariosBorrables && this.usuarioEnEdicion === undefined && this.usuarioEnBorrado === undefined && (this.state === Estados.DATOS_CARGADOS || this.state === Estados.ALGUNO_SELECCIONADO);
   }
-
-  mostrarBotonDeseleccionarTodos(){
+  mostrarBotonDeseleccionarTodos() {
     return this.usuariosBorrables && (this.state === Estados.TODOS_SELECCIONADOS || this.state === Estados.ALGUNO_SELECCIONADO);
   }
-
-  mostrarBotonBorrar  (){
+  mostrarBotonBorrar() {
     return this.usuariosBorrables && (this.state === Estados.TODOS_SELECCIONADOS || this.state === Estados.ALGUNO_SELECCIONADO);
   }
-
-  private referencia?:any
-  establecerFiltro(filtro: string){
+  private referencia?: any
+  establecerFiltro(filtro: string) {
     filtro = filtro.toLowerCase();
     console.log(filtro, this.filtro);
-    if(filtro !== this.filtro) {
+    if (filtro !== this.filtro) {
       this.filtro = filtro;
-      if(this.referencia)
+      if (this.referencia)
         clearTimeout(this.referencia);
       this.referencia = setTimeout(() => this.calcularUsuariosAMostrar(), 200);
     }
   }
-
-  comoIdentificoCadaComponente(index: number, usuario: DatosDeUsuario){
+  comoIdentificoCadaComponente(index: number, usuario: DatosDeUsuario) {
     return usuario.id;
   }
-
-  private calcularUsuariosAMostrar(){
+  private calcularUsuariosAMostrar() {
     this.usuariosAMostrar = this.todosLosUsuarios.filter((usuario) => {
-      return usuario.nombre.toLowerCase().includes(this.filtro)   ||
-             usuario.apellido.toLowerCase().includes(this.filtro) ||
-             usuario.email.toLowerCase().includes(this.filtro)
-      ;
+      return usuario.nombre.toLowerCase().includes(this.filtro) ||
+        usuario.apellido.toLowerCase().includes(this.filtro) ||
+        usuario.email.toLowerCase().includes(this.filtro)
+        ;
     });
   }
-
 }

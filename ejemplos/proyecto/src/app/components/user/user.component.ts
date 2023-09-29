@@ -104,8 +104,8 @@ export class UsuarioComponent implements OnInit, OnChanges {
   }
   seleccionadoCambiado(){
     console.log("seleccionadoCambiado", this.datos.seleccionado, this.datos.seleccionable)
-    if(!this.datos.seleccionable) return
-    // TODO: Solo si está en estado normal
+    if(!this.datos.seleccionable || !this.maquinaEstados.isInState(EstadosComponenteUsuario.NORMAL)) return
+
     this.datos = this.maquinaEstados.updateProperties({ seleccionado: !this.datos.seleccionado });
     if(this.datos.seleccionado){
       this.onSeleccionado.emit(new Seleccionado(this.datos.userData!))

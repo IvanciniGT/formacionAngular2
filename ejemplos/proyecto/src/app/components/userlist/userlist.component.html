@@ -7,8 +7,6 @@
                (keyup)="this.establecerFiltro(filtro.value)"
                (change)="this.establecerFiltro(filtro.value)"
                >
-
-               <span>{{ this.puedeHacerEsteComponenteOperaciones }}</span>
     </div>
     <div id="botones">
         <button
@@ -34,13 +32,14 @@
                 [editable]="this.esEditable(usuario)"
                 [seleccionable]="this.usuariosBorrables" 
                 [seleccionado]="this.usuariosSeleccionados.includes(usuario)"
-                (usuarioBorrado)="this.borrarUsuario(usuario)" 
                 (onSeleccionado)="this.seleccionar(usuario)"
                 (onDeseleccionado)="this.deseleccionar(usuario)"
                 (borradoIniciado) ="this.borradoIniciado(usuario)"
                 (borradoCancelado) ="this.borradoCancelado(usuario)"
                 (edicionIniciada) ="this.edicionIniciada(usuario)"
                 (edicionCancelada) ="this.edicionCancelada(usuario)"
+                (usuarioEditado) ="this.edicionFinalizada(usuario)"
+                (usuarioBorrado) ="this.borradoFinalizado(usuario)"
             ></usuario>
         </div>
     </div>

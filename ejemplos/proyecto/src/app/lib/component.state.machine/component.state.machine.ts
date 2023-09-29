@@ -10,7 +10,7 @@ export class ComponentStateMachine<P extends ComponentProperties, T extends Comp
 
     constructor(initialData: T) {
         this.componentModel = initialData;
-        console.log("State Initialized", this.componentModel.state, this.componentModel)
+        //console.log("State Initialized", this.componentModel.state, this.componentModel)
     }
 
     get data(): T {
@@ -19,7 +19,7 @@ export class ComponentStateMachine<P extends ComponentProperties, T extends Comp
 
     updateProperties<P>(newData: P): T {
         this.componentModel = { ...this.componentModel, ...newData };
-        console.log("newProperties", this.componentModel)
+        //console.log("newProperties", this.componentModel)
         return this.data;
     }
 
@@ -37,7 +37,7 @@ export class ComponentStateMachine<P extends ComponentProperties, T extends Comp
 
     changeState<M extends Partial<T>>(change: ComponentStateChange<T, M>, newData: M): T {
         this.componentModel = change.execute(this.componentModel, newData);
-        console.log("New State", this.componentModel.state, this.componentModel)
+        //console.log("New State", this.componentModel.state, this.componentModel)
         return this.data;
     }
 
