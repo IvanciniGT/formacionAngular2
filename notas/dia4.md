@@ -97,3 +97,12 @@ Las acciones pueden ser despachadas por diferentes componentes:
 ESTO ES REDUX. Y lo podemos usar desde Angular, REACT, Vue.... JS pelao....
 
 Ahora bien... para Angular hay una librería que lo integra de forma un poco más sencilla
+
+
+---
+Utilizar un servicio rxjs
+
+@Injectable()
+export class DataServiceImpl implements DataService {
+    
+}
