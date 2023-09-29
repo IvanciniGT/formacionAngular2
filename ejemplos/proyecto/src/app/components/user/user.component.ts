@@ -7,6 +7,8 @@ import { UsuarioComponentModel, UsuarioComponentProperties } from './user.compon
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ComponentStateMachine } from 'src/app/lib/component.state.machine/component.state.machine';
 import { ComponentStateChange } from 'src/app/lib/component.state.machine/component.state.change';
+import { Store } from '@ngrx/store';
+import { UsuariosState } from 'src/app/state/usuarios/usuarios.state';
 
 @Component({
   selector: 'usuario',
@@ -62,7 +64,9 @@ export class UsuarioComponent implements OnInit, OnChanges {
   datos: UsuarioComponentModel;
   formulario?: FormGroup
 
-  constructor(private usuarioService: UsuarioService, private formBuilder: FormBuilder) {
+  constructor(private usuarioService: UsuarioService, 
+              private formBuilder: FormBuilder, 
+              private store: Store<{usuarioState: UsuariosState}>) {
     this.maquinaEstados = new ComponentStateMachine<UsuarioComponentProperties, UsuarioComponentModel>(new UsuarioComponentModel());
     this.datos = this.maquinaEstados.data;
   }

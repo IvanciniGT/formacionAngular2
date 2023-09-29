@@ -1,6 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { DatosDeUsuario } from 'src/app/models/usuario.model';
 import { UsuarioService } from 'src/app/services/user/user.service';
+import { nuevoUsuarioEnEdicion, nuevoUsuarioEnEliminacion, operacionFinalizada } from 'src/app/state/usuarios/usuarios.actions';
+import { UsuariosState } from 'src/app/state/usuarios/usuarios.state';
 
 
 enum Estados {
@@ -33,13 +37,32 @@ export class UserlistComponent implements OnInit{
   usuariosSeleccionados: Array<DatosDeUsuario> = [];
 
   usuarioEnBorrado?: DatosDeUsuario
+
+// En algun momento recibiré un cambio en el estado global de los usuarios
+// Lo tendremos que procesar:
+// Si no hay operaciones pendientes, yo puedo hacer nuevas operaciones
+// Si hay operaciones pendientes, yo no puedo hacer nuevas operaciones
+// Lo que si... es que si hay una operacion pendiente MIA ... yo sigo sin poder hacer operaciones nuevas... pero si debo
+// continuar con esa operacion que tengo pendiente YO
+
+// Cuando se haga un click en borrar... vamos a asignar la variable usuarioEnBorrado?
+
   usuarioEnEdicion?: DatosDeUsuario
+
+  puedeHacerEsteComponenteOperaciones: boolean = true;
 
   get Estados(){
     return Estados;
   }
 
-  constructor(private usuarioService:UsuarioService){
+  constructor(private usuarioService:UsuarioService, private store: Store<{usuarios: UsuariosState}>) {
+    store.select(state => state).subscribe({
+      next: (state) => console.log("NUEVO ESTADO GLOBAL: ", state)
+    })
+    // Si no hay operaciones pendientes,... o la que hay es mia... puedo operar... si no, no puedo.
+    store.select(state => state.usuarios).subscribe({
+      next: (usuariosState) => this.puedeHacerEsteComponenteOperaciones = !usuariosState.pendingOperation || usuariosState.pendingOperation.component === this
+    });
   }
 
   ngOnInit(): void {
@@ -82,26 +105,32 @@ export class UserlistComponent implements OnInit{
     }
   }
   borradoIniciado(usuario:DatosDeUsuario){
+    // Aquí que debemos hacer?
+    this.store.dispatch(nuevoUsuarioEnEliminacion({user: usuario, component: this}));
     this.usuarioEnBorrado = usuario;
   }
   borradoCancelado(usuario:DatosDeUsuario){
-    if(this.usuarioEnBorrado === usuario)
+    if(this.usuarioEnBorrado === usuario){
       this.usuarioEnBorrado = undefined;
-    else
+      this.store.dispatch(operacionFinalizada({}));
+    } else
       console.error("TENGO UN BUG QUE TE CAGAS")
   }
 
   edicionCancelada(usuario:DatosDeUsuario){
-    if(this.usuarioEnEdicion === usuario)
+    if(this.usuarioEnEdicion === usuario){
       this.usuarioEnEdicion = undefined;
-    else
+      this.store.dispatch(operacionFinalizada({}));
+    }else
       console.error("TENGO UN BUG QUE TE CAGAS")
   }
   edicionIniciada(usuario:DatosDeUsuario){
+    this.store.dispatch(nuevoUsuarioEnEdicion({user: usuario, component: this}));
     this.usuarioEnEdicion = usuario;
   }
 
   borrarUsuario(usuarioSeleccionado: DatosDeUsuario){
+    this.store.dispatch(operacionFinalizada({}));
     this.usuarioService.borrarUsuario(usuarioSeleccionado.id).subscribe({
       next: () => {
         console.log(this.todosLosUsuarios)
@@ -133,10 +162,18 @@ export class UserlistComponent implements OnInit{
     this.usuariosSeleccionados.forEach((usuarioSeleccionado) => this.borrarUsuario(usuarioSeleccionado));
   }
   esBorrable(usuario:DatosDeUsuario){
-    return this.usuariosBorrables &&  this.state === Estados.DATOS_CARGADOS && this.usuarioEnEdicion === undefined && (this.usuarioEnBorrado === undefined || this.usuarioEnBorrado === usuario)
+    return this.puedeHacerEsteComponenteOperaciones 
+              && this.usuariosBorrables 
+              &&  this.state === Estados.DATOS_CARGADOS 
+              && this.usuarioEnEdicion === undefined 
+              && (this.usuarioEnBorrado === undefined || this.usuarioEnBorrado === usuario)
   }
   esEditable(usuario:DatosDeUsuario){
-    return this.usuariosEditables && this.state === Estados.DATOS_CARGADOS && this.usuarioEnBorrado === undefined && (this.usuarioEnEdicion === undefined || this.usuarioEnEdicion === usuario)
+    return this.puedeHacerEsteComponenteOperaciones 
+              && this.usuariosEditables 
+              && this.state === Estados.DATOS_CARGADOS 
+              && this.usuarioEnBorrado === undefined 
+              && (this.usuarioEnEdicion === undefined || this.usuarioEnEdicion === usuario)
   }
 
   mostrarBotonSeleccionarTodos(){
