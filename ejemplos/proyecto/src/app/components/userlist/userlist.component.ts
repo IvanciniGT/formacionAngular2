@@ -62,6 +62,13 @@ export class UserlistComponent implements OnInit {
       next: (usuariosState) => {
         this.puedeHacerEsteComponenteOperaciones = !usuariosState.pendingOperation
           || usuariosState.pendingOperation.component === this.id
+        if (usuariosState.pendingOperation && usuariosState.pendingOperation.component === this.id) {
+          this.usuarioEnBorrado = usuariosState.pendingOperation.type === 'delete' ? usuariosState.pendingOperation.user : undefined
+          this.usuarioEnEdicion = usuariosState.pendingOperation.type === 'edit' ? usuariosState.pendingOperation.user : undefined
+        }else{
+          this.usuarioEnBorrado = undefined
+          this.usuarioEnEdicion = undefined
+        }
       }
     });
   }
@@ -103,35 +110,23 @@ export class UserlistComponent implements OnInit {
     }
   }
   borradoIniciado(usuario: DatosDeUsuario) {
-    // Aquí que debemos hacer?
     this.store.dispatch(nuevoUsuarioEnEliminacion({ user: usuario, component: this.id }));
-    this.usuarioEnBorrado = usuario;
   }
   borradoCancelado(usuario: DatosDeUsuario) {
-    if (this.usuarioEnBorrado === usuario) {
-      this.usuarioEnBorrado = undefined;
       this.store.dispatch(operacionFinalizada({}));
-    } else
-      console.error("TENGO UN BUG QUE TE CAGAS")
   }
   edicionFinalizada(usuario: DatosDeUsuario) {
     this.store.dispatch(operacionFinalizada({}));
-    this.usuarioEnEdicion = undefined;
   }
   borradoFinalizado(usuario: DatosDeUsuario) {
     this.store.dispatch(operacionFinalizada({}));
     this.borrarUsuario(usuario)
   }
   edicionCancelada(usuario: DatosDeUsuario) {
-    if (this.usuarioEnEdicion === usuario) {
-      this.usuarioEnEdicion = undefined;
-      this.store.dispatch(operacionFinalizada({}));
-    } else
-      console.error("TENGO UN BUG QUE TE CAGAS")
+    this.store.dispatch(operacionFinalizada({}));
   }
   edicionIniciada(usuario: DatosDeUsuario) {
     this.store.dispatch(nuevoUsuarioEnEdicion({ user: usuario, component: this.id }));
-    this.usuarioEnEdicion = usuario;
   }
   borrarUsuario(usuarioSeleccionado: DatosDeUsuario) {
     this.usuarioService.borrarUsuario(usuarioSeleccionado.id).subscribe({
@@ -142,7 +137,6 @@ export class UserlistComponent implements OnInit {
         this.calcularUsuariosAMostrar();
         this.usuariosSeleccionados = this.usuariosSeleccionados.filter((usuario) => usuario.id !== usuarioSeleccionado.id);
         this.cambioSeleccion();
-        this.usuarioEnBorrado = undefined;
       },
       error: (err) => {
         //this.state = Estados.ERROR_EN_CARGA; // TODO: Estados nuevos.

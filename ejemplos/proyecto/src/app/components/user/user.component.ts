@@ -9,6 +9,8 @@ import { ComponentStateMachine } from 'src/app/lib/component.state.machine/compo
 import { ComponentStateChange } from 'src/app/lib/component.state.machine/component.state.change';
 import { Store } from '@ngrx/store';
 import { UsuariosState } from 'src/app/state/usuarios/usuarios.state';
+import { UserlistComponent } from '../userlist/userlist.component';
+import { nuevoUsuarioEnEdicion, nuevoUsuarioEnEliminacion, operacionFinalizada } from 'src/app/state/usuarios/usuarios.actions';
 
 @Component({
   selector: 'usuario',
@@ -17,6 +19,8 @@ import { UsuariosState } from 'src/app/state/usuarios/usuarios.state';
 })
 export class UsuarioComponent implements OnInit, OnChanges {
 
+  static idGenerator: number = 0;
+  readonly id = "usuario-component-" + UserlistComponent.idGenerator++;
   // API del componente
 
   @Input()
@@ -64,11 +68,20 @@ export class UsuarioComponent implements OnInit, OnChanges {
   datos: UsuarioComponentModel;
   formulario?: FormGroup
 
+
+  puedeHacerEsteComponenteOperaciones: boolean = true;
+
   constructor(private usuarioService: UsuarioService, 
               private formBuilder: FormBuilder, 
-              private store: Store<{usuarioState: UsuariosState}>) {
+              private store: Store<{usuarios: UsuariosState}>) {
     this.maquinaEstados = new ComponentStateMachine<UsuarioComponentProperties, UsuarioComponentModel>(new UsuarioComponentModel());
     this.datos = this.maquinaEstados.data;
+      store.select(state => state.usuarios).subscribe({
+      next: (usuariosState) => {
+        this.puedeHacerEsteComponenteOperaciones = !usuariosState.pendingOperation
+          || usuariosState.pendingOperation.component === this.id
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -141,25 +154,31 @@ export class UsuarioComponent implements OnInit, OnChanges {
         break;
       case AccionesComponenteUsuario.INICIAR_EDICION:
         this.crearFormularioEdicion()
+        this.store.dispatch(nuevoUsuarioEnEdicion({ user: this.datos.userData!, component: this.id }));
         this.edicionIniciada.emit(new EdicionSolicitada(this.datos.userData!));
         break;
       case AccionesComponenteUsuario.INICIAR_BORRADO:
+        this.store.dispatch(nuevoUsuarioEnEliminacion({ user: this.datos.userData!, component: this.id }));
         this.borradoIniciado.emit(new BorradoSolicitado(this.datos.userData!));
         break;
       case AccionesComponenteUsuario.BORRADO_CANCELADO:
+        this.store.dispatch(operacionFinalizada({}));
         this.borradoCancelado.emit(new BorradoCancelado(this.datos.userData!));
         break;
       case AccionesComponenteUsuario.EDICION_CANCELADA:
       case AccionesComponenteUsuario.CANCELAR_ALMACENAMIENTO_DE_EDICION:
+        this.store.dispatch(operacionFinalizada({}));
         this.edicionCancelada.emit(new EdicionCancelada(this.datos.userData!));
         break;
       case AccionesComponenteUsuario.BORRADO_CONFIRMADO:
+        this.store.dispatch(operacionFinalizada({}));
         this.usuarioBorrado.emit(new BorradoConfirmado(this.datos.userData!));
         break;
       case AccionesComponenteUsuario.REINTENTAR_ALMACENAMIENTO:
       case AccionesComponenteUsuario.EDICION_FINALIZADA:
         break
       case AccionesComponenteUsuario.EDICION_ALMACENADA:
+        this.store.dispatch(operacionFinalizada({}));
         this.usuarioEditado.emit(new EdicionConfirmada(this.datos.userData!));
         break;
       case AccionesComponenteUsuario.ALMACENAMIENTO_FALLIDO:
@@ -225,4 +244,3 @@ export class UsuarioComponent implements OnInit, OnChanges {
     }
   }
 }
-
